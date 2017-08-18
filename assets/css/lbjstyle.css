@@ -1,0 +1,634 @@
+@font-face {
+  font-family: "proxima_nova_rgregular";
+  src: url("../fonts/ProximaNova-Reg-webfont.woff2"); }
+@font-face {
+  font-family: "proxima_nova_rgbold";
+  src: url("../fonts/ProximaNova-Bold-webfont.woff2"); }
+@font-face {
+  font-family: "proxima_nova_rglight";
+  src: url("../fonts/ProximaNova-Light-webfont.woff2"); }
+b, strong {
+  font-family: proxima_nova_rgbold; }
+
+body {
+  font-family: proxima_nova_rgregular;
+  color: #021829;
+  font-size: 14px;
+  font-stretch: normal;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  /*height: 24px;
+  line-height: 24px;*/
+  margin-bottom: 32px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 10px;
+  padding-right: 0px;
+  padding-top: 0px;
+  vertical-align: baseline;
+  word-wrap: break-word; }
+
+.validationLabel {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-family: proxima_nova_rgbold; }
+
+table {
+  font-size: inherit;
+  line-height: 20px;
+  border: #d5d5d5 1px solid;
+  -moz-box-shadow: 5px 5px 8px #aaa;
+  -webkit-box-shadow: 5px 5px 8px #aaa;
+  box-shadow: 5px 5px 8px #aaa;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  background-color: white; }
+
+table th {
+  padding: 12px;
+  border-top: 1px solid #fafafa;
+  border-bottom: 1px solid #e0e0e0;
+  background: NavajoWhite; }
+
+table th:first-child {
+  text-align: left;
+  padding-left: 15px; }
+
+table tr:first-child th:first-child {
+  -moz-border-radius-topleft: 3px;
+  -webkit-border-top-left-radius: 3px;
+  border-top-left-radius: 3px; }
+
+table tr:first-child th:last-child {
+  -moz-border-radius-topright: 3px;
+  -webkit-border-top-right-radius: 3px;
+  border-top-right-radius: 3px; }
+
+table tr {
+  text-align: left;
+  padding-left: 15px; }
+
+table td:first-child {
+  text-align: left;
+  padding-left: 15px;
+  border-left: 0; }
+
+table td {
+  padding: 6px;
+  border-top: 1px solid #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  border-left: 1px solid #e0e0e0; }
+
+table tr:last-child td {
+  border-bottom: 0; }
+
+table tr:last-child td:first-child {
+  -moz-border-radius-bottomleft: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  border-bottom-left-radius: 3px; }
+
+table tr:last-child td:last-child {
+  -moz-border-radius-bottomright: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  border-bottom-right-radius: 3px; }
+
+table .elementList {
+  border-style: none; }
+
+img {
+  margin-left: 10px; }
+
+.bodyContentTypeTable {
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none; }
+
+.glossary dt {
+  background-color: #eef2ff;
+  width: 65%;
+  padding: 4px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #bbcbff;
+  font-size: 14px;
+  font-family: proxima_nova_rgregular;
+  font-weight: bold; }
+
+.admonitionBlock.note .icon {
+  background-color: rgba(0, 73, 119, 0.1); }
+.admonitionBlock.note .title {
+  font-weight: bold; }
+
+.admonitionBlock.important .icon {
+  background-color: rgba(187, 43, 35, 0.75);
+  color: white; }
+.admonitionBlock.important .title {
+  font-weight: bold; }
+
+h1 {
+  padding: 10px;
+  background-image: linear-gradient(to right, #fff, #003a6f);
+  font-family: proxima_nova_rgbold; }
+
+h2, h3, h4, h5 {
+  -webkit-font-smoothing: antialiased;
+  color: #011728;
+  display: block;
+  font-family: proxima_nova_rglight, Arial, Helvetica, sans-serif;
+  vertical-align: baseline;
+  padding: 0px;
+  font-stretch: normal;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 600;
+  margin-left: 0px;
+  margin-right: 0px; }
+
+h2 {
+  font-size: 30px;
+  line-height: 46px;
+  margin-top: 24px;
+  margin-bottom: 12px; }
+
+h3 {
+  font-size: 24px;
+  height: 27px;
+  line-height: 27.6000003814697px;
+  margin-top: 30px;
+  margin-bottom: 20px; }
+
+h4 {
+  font-size: 20px;
+  height: 22px;
+  line-height: 22.6000003814697px;
+  margin-top: 24px;
+  margin-bottom: 16px; }
+
+h5 {
+  font-size: 16px;
+  height: 18px;
+  line-height: 18.6000003814697px;
+  margin-top: 20px;
+  margin-bottom: 12px; }
+
+ul {
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-left: 10px;
+  margin-right: 10px; }
+
+.resourceName {
+  font-size: 28px;
+  line-height: 32px;
+  margin-top: 40px;
+  margin-bottom: 12px;
+  margin-right: 12px;
+  background-color: NavajoWhite;
+  border: 2px solid Peru;
+  padding: 10px; }
+
+.resource .operation {
+  margin-top: 40px; }
+  .resource .operation .operationName {
+    border-width: 1px 0 0 0;
+    border-style: double;
+    padding-top: 15px;
+    margin-right: 15px; }
+
+.resource .operation ~ .operation {
+  margin-top: 40px; }
+  .resource .operation ~ .operation .operationName {
+    border-style: none; }
+
+.attributeLabel {
+  font-family: proxima_nova_rgbold; }
+
+.attributeList {
+  margin: 0;
+  list-style-type: none;
+  padding: 0; }
+  .attributeList .attributeLabel:after {
+    content: ":\00a0"; }
+  .attributeList .attributeValue {
+    font-family: proxima_nova_rgregular; }
+
+/*
+.bodyProperties .attributeList {
+    margin: 0px;
+    margin-left: 10px;
+    margin-bottom: 24px;
+}
+*/
+.endpointToc {
+  list-style-type: none;
+  margin: 0 15px 0 0; }
+  .endpointToc li {
+    padding-left: 50px;
+    text-indent: -50px;
+    margin-bottom: 7.5px; }
+  .endpointToc .endpointTocItemHttpMethod {
+    font-family: proxima_nova_rgbold;
+    border-radius: 2px;
+    padding-left: 4px;
+    padding-right: 4px; }
+  .endpointToc .endpointTocItemUrl {
+    font-family: proxima_nova_rgbold; }
+    .endpointToc .endpointTocItemUrl:before {
+      content: "\00a0"; }
+    .endpointToc .endpointTocItemUrl:after {
+      content: ":\00a0"; }
+  .endpointToc a:link, .endpointToc a:visited, .endpointToc a:hover, .endpointToc a:active {
+    text-decoration: none; }
+  .endpointToc a:hover, .endpointToc a:active {
+    background-color: rgba(0, 0, 0, 0.1); }
+
+.topOfPageArrow {
+  font-size: 14px;
+  color: black;
+  text-decoration: none; }
+  .topOfPageArrow a:hover, .topOfPageArrow a:active {
+    background-color: rgba(0, 0, 0, 0.1); }
+
+.operationContainer {
+  border-width: 2px;
+  border-radius: 6px;
+  border-style: solid;
+  margin: 24px 15px 0 0; }
+
+.endpoint {
+  font-weight: normal;
+  font-family: monospace;
+  font-size: 16px;
+  padding: 10px;
+  color: white;
+  word-wrap: break-word; }
+
+.curlHolder, .nodeHolder {
+  border-width: 1px;
+  border-radius: 3px;
+  border-style: solid;
+  margin: 5px;
+  padding: 10px;
+  word-wrap: break-word;
+  /*background-color: white;*/
+  /*color: white;*/ }
+
+/*.nodeHolder {
+    background-color: darken(gray, 10%)
+}*/
+.httpRequestResponse {
+  padding: 0 10px; }
+
+.httpRequestResponse + .httpRequestResponse {
+  /* 1px padding is a kludge; not sure what's going on, here, but we need some padding, and non-zero
+      seems to be all that's needed.
+  */
+  padding-top: 1px;
+  padding-bottom: 1px;
+  border-top: 2px solid #004977; }
+
+.httpRequestResponseLabel {
+  font-family: proxima_nova_rgbold, Arial, Helvetica, sans-serif;
+  font-size: 22px; }
+
+.syntaxSection {
+  margin-left: 0px;
+  margin-top: 30px; }
+
+.httpRequestResponseLabel + .syntaxSection {
+  margin-top: 20px; }
+
+.syntaxSectionLabel {
+  font-family: proxima_nova_rgbold, Arial, Helvetica, sans-serif;
+  font-size: 16px; }
+
+.prosaicDescription {
+  margin-right: 15px; }
+
+.prosaicDescription p {
+  font-size: 14px;
+  line-height: normal; }
+
+.element {
+  padding-left: 10px;
+  min-height: 32px;
+  margin-top: 0px; }
+  .element .elementContainer {
+    margin-left: 3px;
+    border-width: 0 0 0 1px;
+    border-style: dotted;
+    border-radius: 1px;
+    border-color: rgba(0, 0, 0, 0.5); }
+  .element .element {
+    margin-left: 12px;
+    border-style: none; }
+
+.httpStates .elementSpec {
+  float: left; }
+.httpStates .elementDescription {
+  margin: 0px 0 0 50px; }
+
+.httpStates .element, .errorcodes .element {
+  min-height: 0px;
+  margin-top: 15px; }
+.httpStates table.col-2, .errorcodes table.col-2 {
+  border-width: 0px;
+  float: none; }
+  .httpStates table.col-2 td, .errorcodes table.col-2 td {
+    padding-top: 15px;
+    padding-left: 10px;
+    .elementName-width: 20%;
+    .elementDescription-width: 80%; }
+  .httpStates table.col-2 tr:first-child > td, .errorcodes table.col-2 tr:first-child > td {
+    padding-top: 0px; }
+
+.errorCodes .elementSpec {
+  float: left; }
+.errorCodes .elementDescription {
+  margin: 0px 0 0 75px; }
+
+.elementName {
+  font-family: proxima_nova_rgbold;
+  font-size: 14.1px; }
+
+.elementDataType {
+  color: #5a5a5a;
+  font-family: proxima_nova_rgregular;
+  font-size: 14.1px;
+  font-weight: bold;
+  margin: 0 25px; }
+
+.elementDefaultValue::before {
+  content: "default:";
+  margin-right: 9px;
+  font-family: proxima_nova_rgregular;
+  font-style: italic;
+  font-size: 13.75px;
+  color: #5a5a5a; }
+
+.defaultValueNone::after {
+  content: "none";
+  margin-left: -3px;
+  font-family: proxima_nova_rgregular;
+  font-style: italic;
+  font-size: 13.75px;
+  color: #5a5a5a; }
+
+.elementDefaultValue {
+  font-family: proxima_nova_rgregular;
+  font-weight: bold;
+  font-size: 14.1px; }
+
+/*
+.elementSpec {
+    margin-bottom: -7.5px;
+}
+*/
+.elementDescription {
+  font-size: 14px;
+  margin: 0px 10px 20px 10px; }
+
+pre {
+  font-size: 13px;
+  padding: 10px;
+  margin: 10px;
+  /*overflow: scroll;
+  max-height: 175px;*/
+  border: 1px solid Gainsboro;
+  background-color: #e6e6eb;
+  -moz-box-shadow: 5px 5px 8px #aaa;
+  -webkit-box-shadow: 5px 5px 8px #aaa;
+  box-shadow: 5px 5px 8px #aaa;
+  white-space: pre-wrap;
+  /* stylesheets-3 */
+  white-space: -moz-pre-wrap;
+  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;
+  /* Opera 4-6 */
+  white-space: -o-pre-wrap;
+  /* Opera 7 */
+  word-wrap: break-word; }
+
+.jsonExample pre {
+  max-height: none; }
+
+.syntaxSection pre {
+  padding-left: 10px; }
+
+.listingBlock {
+  margin-left: 10px; }
+
+.requiredMark {
+  color: #990000;
+  font-weight: bold;
+  font-family: proxima_nova_rglight;
+  font-size: 17px; }
+
+.elementDescription li {
+  margin: 10px; }
+.elementDescription li + li {
+  margin-top: -4px; }
+.elementDescription li p {
+  margin: 10px; }
+
+.symbolInProse {
+  font-family: proxima_nova_rgbold;
+  font-size: 14.1px; }
+
+code .symbolInProse {
+  font-family: inherit;
+  font-size: inherit; }
+
+.prosaicDescription h2 {
+  margin-top: 40px;
+  padding-left: 7px;
+  /*background-color: rgba(249, 240, 224, 0.28);
+  border: 1px solid Maroon;*/ }
+.prosaicDescription h3 {
+  margin-top: 30px; }
+.prosaicDescription h4 {
+  margin-top: 20px; }
+.prosaicDescription h5 {
+  margin-top: 16px; }
+
+.coDevExStyle {
+  font-family: proxima_nova_rgbold; }
+
+.kComment {
+  color: #cc0000;
+  background-color: #f3f3f3; }
+  .kComment:before {
+    content: " "; }
+  .kComment:after {
+    content: " "; }
+
+.argStyle {
+  background-color: #ffff4d; }
+
+.filename {
+  font-family: monospace;
+  background-color: NavajoWhite;
+  padding-left: 2px;
+  padding-right: 2px;
+  border: .5px solid grey;
+  border-radius: 4px; }
+
+.uiElement {
+  font-weight: bold;
+  color: #1a001a;
+  background-color: AliceBlue;
+  padding-left: 2px;
+  padding-right: 2px;
+  border: .5px solid grey;
+  border-radius: 4px; }
+
+.GET {
+  border-color: #004977; }
+  .GET .endpoint {
+    background-color: #004977; }
+  .GET .httpRequestResponseLabel {
+    color: #004977; }
+  .GET .syntaxSectionLabel {
+    color: #004977; }
+  .GET .element .element {
+    border-color: #004977; }
+  .GET .httpRequestResponse + .httpRequestResponse {
+    border-top: 2px solid #004977;
+    background-color: rgba(0, 73, 119, 0.02); }
+  .GET .endpointTocItemHttpMethod {
+    background-color: #004977;
+    color: white; }
+  .GET .endpointTocItemUrl {
+    color: #004977; }
+
+.POST {
+  border-color: #128020; }
+  .POST .endpoint {
+    background-color: #128020; }
+  .POST .httpRequestResponseLabel {
+    color: #128020; }
+  .POST .syntaxSectionLabel {
+    color: #128020; }
+  .POST .element .element {
+    border-color: #128020; }
+  .POST .httpRequestResponse + .httpRequestResponse {
+    border-top: 2px solid #128020;
+    background-color: rgba(18, 128, 32, 0.02); }
+  .POST .endpointTocItemHttpMethod {
+    background-color: #128020;
+    color: white; }
+  .POST .endpointTocItemUrl {
+    color: #128020; }
+
+.PATCH {
+  border-color: sienna; }
+  .PATCH .endpoint {
+    background-color: sienna; }
+  .PATCH .httpRequestResponseLabel {
+    color: sienna; }
+  .PATCH .syntaxSectionLabel {
+    color: sienna; }
+  .PATCH .element .element {
+    border-color: sienna; }
+  .PATCH .httpRequestResponse + .httpRequestResponse {
+    border-top: 2px solid sienna;
+    background-color: rgba(160, 82, 45, 0.02); }
+  .PATCH .endpointTocItemHttpMethod {
+    background-color: sienna;
+    color: white; }
+  .PATCH .endpointTocItemUrl {
+    color: sienna; }
+
+.PUT {
+  border-color: #e68200; }
+  .PUT .endpoint {
+    background-color: #e68200; }
+  .PUT .httpRequestResponseLabel {
+    color: #e68200; }
+  .PUT .syntaxSectionLabel {
+    color: #e68200; }
+  .PUT .element .element {
+    border-color: #e68200; }
+  .PUT .httpRequestResponse + .httpRequestResponse {
+    border-top: 2px solid #e68200;
+    background-color: rgba(230, 130, 0, 0.02); }
+  .PUT .endpointTocItemHttpMethod {
+    background-color: #e68200;
+    color: white; }
+  .PUT .endpointTocItemUrl {
+    color: #e68200; }
+
+.DELETE {
+  border-color: #bb2b23; }
+  .DELETE .endpoint {
+    background-color: #bb2b23; }
+  .DELETE .httpRequestResponseLabel {
+    color: #bb2b23; }
+  .DELETE .syntaxSectionLabel {
+    color: #bb2b23; }
+  .DELETE .element .element {
+    border-color: #bb2b23; }
+  .DELETE .httpRequestResponse + .httpRequestResponse {
+    border-top: 2px solid #bb2b23;
+    background-color: rgba(187, 43, 35, 0.02); }
+  .DELETE .endpointTocItemHttpMethod {
+    background-color: #bb2b23;
+    color: white; }
+  .DELETE .endpointTocItemUrl {
+    color: #bb2b23; }
+
+thead, tfoot {
+  display: table-row-group; }
+
+tr {
+  page-break-inside: avoid; }
+
+.opTab {
+  font-family: proxima_nova_rgregular;
+  font-size: 14.1px;
+  background-color: gray;
+  border-width: 0px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  position: relative;
+  left: 6px;
+  padding: 6px 12px;
+  color: white; }
+  .opTab.currentOpTab {
+    background-color: #004977; }
+
+button:focus {
+  outline: 0; }
+
+.infractions {
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid Sienna;
+  background-color: Seashell;
+  -moz-box-shadow: 5px 5px 8px #aaa;
+  -webkit-box-shadow: 5px 5px 8px #aaa;
+  box-shadow: 5px 5px 8px #aaa; }
+  .infractions li {
+    margin: 5px; }
+  .infractions .fatal::before {
+    content: "\2620";
+    color: DarkRed;
+    margin-top: -25; }
+  .infractions .error::before {
+    content: "\20E0";
+    color: Maroon;
+    font-weight: bold;
+    font-size: 16px; }
+  .infractions .warning::before {
+    content: "\2753";
+    color: SteelBlue; }
+
+.gypsumVersion {
+  margin-top: 16px;
+  font-size: 10px;
+  font-stye: italic; }
+
+/*# sourceMappingURL=lbjstyle.stylesheets.map */

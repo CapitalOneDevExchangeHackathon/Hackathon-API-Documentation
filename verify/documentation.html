@@ -1,0 +1,1970 @@
+<body style="zoom:100%;">
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_overview">Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong><span class="symbolInProse">Verify with Capital One</span></strong> is an identity-proofing product that allows you to match the personal information provided by one of your customers to the verified information of a Capital One customer.</p>
+</div>
+<div class="paragraph">
+<p>This is not your standard 'secret question' or 'out-of-wallet question' verification; our feature is different. As a bank, we’re required to verify the identity of our customers, so you can be sure we’ve already validated that they are who they say they are. Before we even start verification we require our customer’s consent, so you get the added assurance that they have agreed to the process. And we require that you secure the personal information being checked using a hash and a salt secret you generate as you go.</p>
+</div>
+<div class="paragraph">
+<p>This API includes three operations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#_retrieve_verify_button_code"><span class="symbolInProse">Retrieve verify button code</span></a> returns the HTML code for a <strong>Verify with Capital One</strong> button you can add to your experience. The provided code is completely customized with your app’s credentials and ready to be used to initiate the OAuth authorization code flow (see <a href="#_authorization"><span class="symbolInProse">Authorization</span></a> for details).</p>
+</li>
+<li>
+<p><a href="#_retrieve_salt_secret"><span class="symbolInProse">Retrieve salt secret</span></a> generates (or simply returns, if a valid one already exists) a salt secret you can use to create the hash that secures your customer’s personal information.</p>
+</li>
+<li>
+<p><a href="#_prove_identity"><span class="symbolInProse">Prove identity</span></a> initiates the verification process by sending your customer’s personal information to us (securely hashed using SHA-256). We’ll return a 204 if we can verify the customer, or a 404 if we can’t.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><span class="symbolInProse">Verify with Capital One</span> helps you serve the twin purposes of securely verifying your users' identities and providing them with a frictionless user experience. That’s a win for everyone!</p>
+</div>
+<div class="sect2">
+<h3 id="_example_use_case">Example use case</h3>
+<div class="paragraph">
+<p>Suppose you run a website that allows end users to obtain access to their healthcare records. When customers register with your site, they provide their personal data and choose the option to <strong>Verify with Capital One</strong>. The customer is asked to log in to Capital One and consent to this action; your website then calls the operations provided in the <span class="symbolInProse">Verify with Capital One</span> API product to secure and send the customer’s personal information, and receives a verification (or not) in the response.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_hello_world">Hello world</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To take full advantage of the features provided by the <span class="symbolInProse">Verify with Capital One</span> API, a typical production workflow would look something like this:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Call the <em>/oauth2/token</em> endpoint and exchange your <span class="symbolInProse">Client ID</span> and <span class="symbolInProse">Client Secret</span> for an access token;</p>
+</li>
+<li>
+<p>Use that access token to call <span class="symbolInProse">Retrieve verify button code</span>, and use the HTML code returned to add the <strong>Verify with Capital One</strong> button to your experience;</p>
+</li>
+<li>
+<p>Wait for an end user to click that button, which calls the <em>/oauth2/authorize</em> endpoint and initiates the customer consent flow; once the customer consents, use the resulting authorization code to call the <em>/oauth2/token</em> endpoint again to retrieve a second access token suitable for use with the <span class="symbolInProse">Prove identity</span> operation;</p>
+</li>
+<li>
+<p>Use either access token to call the <span class="symbolInProse">Retrieve salt secret</span> operation to obtain a salt secret;</p>
+</li>
+<li>
+<p>Prepend the salt to the customer’s personal data, and perform the required SHA-256 hash; then</p>
+</li>
+<li>
+<p>Use the second access token and the hashed customer data to call <span class="symbolInProse">Prove identity</span>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For our simple cURL-based Hello World, though, we’ll use a slightly altered flow that skips the use of the <strong>Verify with Capital One</strong> button:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Call the <em>/oauth2/token</em> endpoint and exchange your <span class="symbolInProse">Client ID</span> and <span class="symbolInProse">Client Secret</span> for an access token;</p>
+</li>
+<li>
+<p>Use that access token to call the <span class="symbolInProse">Retrieve salt secret</span> operation to obtain the salt secret;</p>
+</li>
+<li>
+<p>Call the <em>/oauth2/authorize</em> endpoint to initiate the customer consent flow; use the resulting authorization code to call the <em>/oauth2/token</em> endpoint again to retrieve a second access token suitable for use with <span class="symbolInProse">Prove identity</span>;</p>
+</li>
+<li>
+<p>Prepend the salt to the customer’s personal data, and perform the required SHA-256 hash; then</p>
+</li>
+<li>
+<p>Use the second access token and the hashed customer data to call <span class="symbolInProse">Prove identity</span>.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>You can use either kind of access token for the call to <span class="symbolInProse">Retrieve salt secret</span>, so if you choose not to make use of the <strong>Verify with Capital One</strong> button you can simplify this workflow even further:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Call the <em>/oauth2/authorize</em> endpoint to initiate the customer consent flow; use the resulting authorization code to call the <em>/oauth2/token</em> endpoint to retrieve an access token;</p>
+</li>
+<li>
+<p>Use that access token to call the <span class="symbolInProse">Retrieve salt secret</span> operation to obtain the salt secret;</p>
+</li>
+<li>
+<p>Prepend the salt to the customer’s personal data, and perform the required SHA-256 hash; then</p>
+</li>
+<li>
+<p>Use the same access token and the hashed customer data to call <span class="symbolInProse">Prove identity</span>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Choose the workflow that makes the most sense for your experience; they’ll all get you to the same place!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Before you can begin, your Capital One product manager must provide you with access to a co-dev application and make sure it is properly configured; all you have to do is to sign up for a <span class="coDevExStyle">Capital One DevExchange</span> account. You can find more information about how to do this in <a href="https://developer.capitalone.com/platform-documentation/getting-started">Getting Started</a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For simplicity’s sake, we’ll ignore certificate errors by passing the <code>-k</code> argument in these sandbox commands. You would of course properly handle your certificates in production.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Ready to move on? Let’s go.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Gather your credentials.</strong></p>
+<div class="paragraph">
+<p>The <em>Co-Dev</em> tab of your <a href="https://developer.capitalone.com/platform-documentation/getting-started.html#_viewing_app_details"><em>App Details</em></a> page provides you with your app’s <span class="symbolInProse">Client ID</span> and <span class="symbolInProse">Client Secret</span>; this page will also contain the <span class="symbolInProse">Redirect URI</span> your product manager has configured. You’ll need all of these values.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="{base.path.static.content}/DevPortal/assets/images/api/identity/client_credentials.png" alt="OAuth information on the app details page">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+You can also use the sandbox server (<span class="symbolInProse">https://api-sandbox.capitalone.com</span>) and your app’s <span class="symbolInProse">Sandbox</span> credentials to make these calls; just be sure to use a <a href="#_testing">test account</a> appropriate to the server you’ve chosen. The cURL provided below shows the call to the co-dev server; be sure to adjust the code if you choose to use the sandbox server instead.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For the call to <em>oauth2/authorize</em>, you’ll also need the appropriate <span class="symbolInProse">scope</span> value: <span class="symbolInProse">verify</span>.</p>
+</div>
+</li>
+<li>
+<p><strong>Get an access token for calling the <span class="symbolInProse">Retrieve salt secret</span> operation.</strong></p>
+<div class="paragraph">
+<p>Begin with the call to <em>/oauth2/token</em> (note the <span class="symbolInProse">client credentials</span> grant type):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>curl -i -k --tlsv1 -H "Accept:application/json" -H "Content-Type:application/x-www-form-urlencoded" -d "client_id=<span class="argStyle">YOUR_CLIENT_ID</span>&amp;client_secret=<span class="argStyle">YOUR_CLIENT_SECRET</span>&amp;grant_type=client_credentials" -X POST <span class="symbolInProse">https://apiit.capitalone.com</span>/oauth2/token</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This call will return a JSON response that includes your <strong>access token</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>"access_token" : "eyJlbmMiOiJBMTI4Q0JDX0hTMjU2IiwicGNrIjoxLCJhbGciOiJESVIiLCJraWQiOiJhN3EifQ..LMm-IfPx30t7zNd0y4MHsw.-Rht_7LuBvQ2sAg8yGEw82VUChHIYiHGKr9HghRINfsNsJPaGGvvI24iQhxjTMPdYSNEZLRT_Ps6mLAPmfOb4J_FOjihbxb5uC0zRkAkFw-fTetzuqCzUTKG4AOLF_25IGn3ZroEzkkuMB9OcGgS15bNNDcTcE0InDRgvdU25_Qt774rvXRQCUxwEeBkN_g7ja-BRJy2q2nwFpRVLHjw0g.dESEDQZGkRKFyShPUfDNEw"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Call the <span class="symbolInProse">Retrieve salt secret</span> operation.</strong></p>
+<div class="paragraph">
+<p>To get the salt secret that you need to hash your customer data, make the following call:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>curl -i -k --tlsv1 -H "Accept: application/json;v=1" -H "Authorization: Bearer <span class="argStyle">YOUR_ACCESS_TOKEN</span>" -H Client-Correlation-Id: 123xyz -X POST <span class="symbolInProse">https://apiit.capitalone.com</span>/identity/salt</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A success response will look like the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "salt": "be23e36b-7a43-438b-86f1-ec8c4f3dd9f7",
+  "saltExpirationTimestamp": "2017-10-16T12:04:22Z",
+  "saltVersion": "V2"
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Get a second access token for calling the <span class="symbolInProse">Prove identity</span> operation.</strong></p>
+<div class="paragraph">
+<p>Start by calling our authorization server, which will prompt you (or, later, your customer) to log in to a Capital One account. You’ll need your <span class="symbolInProse">Client ID</span>, <span class="symbolInProse">Redirect URI</span>, and the <span class="symbolInProse">scope</span> value to construct the appropriate URL, which you can use in any browser:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code><span class="symbolInProse">https://apiit.capitalone.com</span>/oauth2/authorize?redirect_uri=<span class="argStyle">YOUR_REDIRECT_URI</span>&amp;scope=verify&amp;client_id=<span class="argStyle">YOUR_CLIENT_ID</span>&amp;response_type=code</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+We’ve omitted the optional <a href="#_authorization">state parameter</a> here to make things simpler, but you should include it in your application code.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This launches a Capital One login screen; you can log in using <a href="#_testing">one of the test accounts provided</a>; just be sure to use a test account defined on the test server — co-dev or sandbox — you’ve chosen to use.</p>
+</div>
+<div class="paragraph">
+<p>Note that, in a production environment, <span class="symbolInProse">Prove identity</span> <em>may</em> require two-factor authentication; the co-dev server provides two test accounts that require this. After you log in with one of these accounts, you must perform one additional step: either</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>request a one-time password (OTP), which you must enter in the screen that displays; or</p>
+</li>
+<li>
+<p>respond to a SwiftID notification on a mobile device.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+You’ll need some help from us to get set up to respond to the two-factor authentication; please coordinate with your Capital One product manager for assistance.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Once login is complete, you must approve the verification request:</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="{base.path.static.content}/DevPortal/assets/images/api/identity/consentVerify_new2.png" alt="OAuth consent for Verify with Capital One"></span></p>
+</div>
+</li>
+<li>
+<p><strong>Grab your authorization code.</strong></p>
+<div class="paragraph">
+<p>If consent is given, the authorization server sends back an <strong>authorization code</strong> appended to your redirect URI, like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>https://<span class="argStyle">YOUR_REDIRECT_URI</span>?code=cJ7YAXO-DJeiCwt8_mjpNcfwr9qjgqRlCgWZwg</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Capture that code; you’ll need it for your next call.</p>
+</div>
+</li>
+<li>
+<p><strong>Get your access token.</strong></p>
+<div class="paragraph">
+<p>Next you exchange the authorization code for the <strong>access token</strong> you need to call <span class="symbolInProse">Prove identity</span>. Here’s the call in cURL:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>curl -i -k --tlsv1 -v -H "Accept:application/json" -H "Content-Type:application/x-www-form-urlencoded" -d "code=<span class="argStyle">YOUR_AUTHORIZATION_CODE</span>&amp;client_id=<span class="argStyle">YOUR_CLIENT_ID</span>&amp;client_secret=<span class="argStyle">YOUR_CLIENT_SECRET</span>&amp;grant_type=authorization_code&amp;redirect_uri=<span class="argStyle">YOUR_REDIRECT_URI</span>" -X POST <span class="symbolInProse">https://apiit.capitalone.com</span>/oauth2/token</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that you’ll also need your <span class="symbolInProse">Client ID</span> and <span class="symbolInProse">Redirect URI</span> again, plus your <span class="symbolInProse">Client Secret</span>.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+Be sure to keep your client secret private!
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This call will return a JSON response that includes your <strong>access token</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>"access_token" : "eyJlbmMiOiJBMTI4Q0JDX0hTMjU2IiwicGNrIjoxLCJhbGciOiJESVIiLCJraWQiOiJhN3EifQ..LMm-IfPx30t7zNd0y4MHsw.-Rht_7LuBvQ2sAg8yGEw82VUChHIYiHGKr9HghRINfsNsJPaGGvvI24iQhxjTMPdYSNEZLRT_Ps6mLAPmfOb4J_FOjihbxb5uC0zRkAkFw-fTetzuqCzUTKG4AOLF_25IGn3ZroEzkkuMB9OcGgS15bNNDcTcE0InDRgvdU25_Qt774rvXRQCUxwEeBkN_g7ja-BRJy2q2nwFpRVLHjw0g.dESEDQZGkRKFyShPUfDNEw"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Hash the customer information.</strong></p>
+<div class="paragraph">
+<p>Begin by <strong>prepending</strong> the salt to each data value, then use any SHA-256 hash generator to generate the salted and hashed value you’ll send in your request. This protects your end user’s personal data during the call.</p>
+</div>
+</li>
+<li>
+<p><strong>Call the <span class="symbolInProse">Prove identity</span> operation.</strong></p>
+<div class="paragraph">
+<p>Now you can verify your first Capital One customer.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>curl -i -k --tlsv1 -H "Accept: application/json;v=1" -H "Authorization: Bearer <span class="argStyle">YOUR_ACCESS_TOKEN</span>" -H "Client-Correlation-Id: 4ee98e60WERFG" -H "Accept: application/json;v=1" -X GET "<span class="symbolInProse">https://apiit.capitalone.com</span>/identity/proof?ssnToken=<span class="argStyle">SALTED_AND_HASHED_SSN</span>&amp;dateOfBirthToken=<span class="argStyle">SALTED_AND_HASHED_DOB</span>&amp;lastNameToken=<span class="argStyle">SALTED_AND_HASHED_LASTNAME</span>&amp;saltVersion=<span class="argStyle">YOUR_SALT_VERSION</span>"</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>That’s it! Your response will look something like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>HTTP/1.1 204 Success
+Accept: application/json;v=1
+Content-Length: 0
+Content-Type: application/json
+Date: Thu, 16 Feb 2017 20:38:08 GMT</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_servers">Servers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <span class="coDevExStyle">Capital One DevExchange</span> platform provides three servers that serve distinct purposes. You might start off using the sandbox server, which provides a fixed set of use cases and accompanying test data:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code><span class="symbolInProse">https://api-sandbox.capitalone.com</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>then move on to the co-dev test server, which provides a broader set of test data and allows for testing a more fluid set of scenarios:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code><span class="symbolInProse">https://apiit.capitalone.com</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you’re ready to go live, you’ll use the production server:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code><span class="symbolInProse">https://api.capitalone.com</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can find the credentials you need for calling the codev and sandbox servers on your <a href="https://developer.capitalone.com/platform-documentation/getting-started.html#_viewing_app_details"><em>App Details</em></a> page. You’ll need special credentials in order to access the production server; contact your Capital One product manager for details.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_versioning">Versioning</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When you make a Capital One API call, you must declare the version of the endpoint that you want to invoke. The version is declared by appending a <strong>v=<em>N</em></strong> element to the <span class="symbolInProse">Accept</span> header, where <strong><em>N</em></strong> gives the major version number. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Accept: application/json; v=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Version numbers are always whole numbers, and are always specified by major version only; if a minor version of the API exists, your call will automatically go to the highest-available minor version. If you call a version that does not exist, you’ll get a 403 status code in response.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_authorization">Authorization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For general information about OAuth flows and how Capital One implements them, see <a href="https://developer.capitalone.com/platform-documentation/authorization-with-oauth-20/">Authorization with OAuth 2.0</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="_choosing_an_oauth_flow">Choosing an OAuth flow</h3>
+<div class="paragraph">
+<p>As noted <a href="#_hello_world">above</a>, you have a couple different options for organizing your workflow:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use the <strong>client credentials</strong> OAuth flow to retrieve an access token, call <span class="symbolInProse">Retrieve verify button code</span>, use the authorization code returned when the button is executed to complete the <strong>authorization code</strong> OAuth flow to obtain a second access token, then use that token to call both <span class="symbolInProse">Retrieve salt secret</span> and <span class="symbolInProse">Prove identity</span>;</p>
+</li>
+<li>
+<p>Skip the use of the <strong>Verify with Capital One</strong> button, use the <strong>client credentials</strong> OAuth flow to retrieve an access token, call <span class="symbolInProse">Retrieve salt secret</span>, use the <strong>authorization code</strong> OAuth flow to retrieve a second access token, then call <span class="symbolInProse">Prove identity</span>; or</p>
+</li>
+<li>
+<p>Skip the use of the <strong>Verify with Capital One</strong> button, use the <strong>authorization code</strong> OAuth flow to obtain an access token, then use that token for both the <span class="symbolInProse">Retrieve salt secret</span> and <span class="symbolInProse">Prove identity</span> calls.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>We’ve provided some cURL snippets for illustration here, which you can use to understand the flows, but for a production client we recommend that you consider using <a href="http://oauth.net/2/">one of the many standard OAuth libraries out there</a>.</p>
+</div>
+<div class="paragraph">
+<p>Before you start the authorization process, you’ll need the following information:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The URL of the Capital One authorization server</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Testing: <span class="symbolInProse">https://api-sandbox.capitalone.com</span> (sandbox) or <span class="symbolInProse">https://apiit.capitalone.com</span> (co-dev)</p>
+</li>
+<li>
+<p>Production: <span class="symbolInProse">https://api.capitalone.com</span></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The appropriate <span class="symbolInProse">Client ID</span> and <span class="symbolInProse">Client Secret</span> assigned to your co-dev app; you’ll need these for both OAuth flows. Your app will include separate crendentials for each supported server, so be sure to select the values appropriate to the server you plan to use.</p>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+The <span class="symbolInProse">Client Secret</span> must be kept confidential, in a secure, non-public location on your server. If your client secret is compromised, you must request a new one by contacting support. If you share your source code, make sure that you do not include the client secret.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Your <span class="symbolInProse">Redirect URI</span>, which is used to verify authorization requests and to provide the authorization code. This value is also assigned to your co-dev app. You need this and the following two items only for the authorization code flow.</p>
+</li>
+<li>
+<p>The appropriate <span class="symbolInProse">scope</span> for authorization:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>verify</code>, which provides access to Capital One’s verification for the customer who authorizes your app.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>(Optional but strongly recommended) The value of a <span class="symbolInProse">state parameter</span>. You pass this value to the authorization server in your initial authorization request, and the server returns it when it redirects back. This value is important for protecting against cross-site request forgery (CSRF) attacks.</p>
+<div class="paragraph">
+<p>You should construct the state value as a unique non-guessable string. See <a href="https://tools.ietf.org/html/rfc6749#section-4.1.1">the OAuth 2.0 specification</a> for more information.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_client_credentials_flow">The client credentials flow</h3>
+<div class="paragraph">
+<p>An access token retrieved using the client credentials OAuth flow can be used to call the <span class="symbolInProse">Retrieve verify button code</span> and <span class="symbolInProse">Retrieve salt secret</span> operations. In this flow, you simply exchange the <span class="symbolInProse">Client ID</span> and <span class="symbolInProse">Client Secret</span> for an access token. A sample request looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>curl -i -k --tlsv1 -H "Accept:application/json" -H "Content-Type:application/x-www-form-urlencoded" -d "client_id=<span class="argStyle">YOUR_CLIENT_ID</span>&amp;client_secret=<span class="argStyle">YOUR_CLIENT_SECRET</span>&amp;grant_type=client_credentials" -X POST <span class="symbolInProse">https://apiit.capitalone.com</span>/oauth2/token</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The access token is returned in the response body, like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+{
+  "access_token" : "eyJlbmMiOiJBMTI4Q0JDX0hTMjU2IiwicGNrIjoxLCJhbGciOiJESVIiLCJraWQiOiJhN3EifQ..LMm-IfPx30t7zNd0y4MHsw.-Rht_7LuBvQ2sAg8yGEw82VUChHIYiHGKr9HghRINfsNsJPaGGvvI24iQhxjTMPdYSNEZLRT_Ps6mLAPmfOb4J_FOjihbxb5uC0zRkAkFw-fTetzuqCzUTKG4AOLF_25IGn3ZroEzkkuMB9OcGgS15bNNDcTcE0InDRgvdU25_Qt774rvXRQCUxwEeBkN_g7ja-BRJy2q2nwFpRVLHjw0g.dESEDQZGkRKFyShPUfDNEw",
+  "token_type" : "Bearer",
+  "expires_in" : 1295999
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You then include the access token in an authorization header in your requests to either <span class="symbolInProse">Retrieve verify button code</span> or <span class="symbolInProse">Retrieve salt secret</span>, like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Authorization: Bearer eyJlbmMiOiJBMTI4Q0JDX0hTMjU2IiwicGNrIjoxLCJhbGciOiJESVIiLCJraWQiOiJhN3EifQ..LMm-IfPx30t7zNd0y4MHsw.-Rht_7LuBvQ2sAg8yGEw82VUChHIYiHGKr9HghRINfsNsJPaGGvvI24iQhxjTMPdYSNEZLRT_Ps6mLAPmfOb4J_FOjihbxb5uC0zRkAkFw-fTetzuqCzUTKG4AOLF_25IGn3ZroEzkkuMB9OcGgS15bNNDcTcE0InDRgvdU25_Qt774rvXRQCUxwEeBkN_g7ja-BRJy2q2nwFpRVLHjw0g.dESEDQZGkRKFyShPUfDNEw</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The access token is valid for <span class="symbolInProse">expires in</span> seconds. You’ll know that the token has expired when the calls that you make return a 401 HTTP status code and the code value, in the response body, is 101217. No refresh token is available; you simply request another access token by repeating your initial request.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_authorization_code_flow">The authorization code flow</h3>
+<div class="paragraph">
+<p>The authorization code flow requires user login and consent; an access token retrieved using this flow can be used to call either <span class="symbolInProse">Retrieve salt secret</span> or <span class="symbolInProse">Prove identity</span>.</p>
+</div>
+<div class="sect3">
+<h4 id="_getting_user_consent">Getting user consent</h4>
+<div class="paragraph">
+<p>The first step in this flow is to obtain user login and consent; you begin with a call to our authorization server. The URL looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code><span class="symbolInProse">https://apiit.capitalone.com</span>/oauth2/authorize?client_id=<span class="argStyle">YOUR_CLIENT_ID</span>&amp;redirect_uri=<span class="argStyle">YOUR_REDIRECT_URI</span>&amp;scope=verify&amp;response_type=code&amp;state=<span class="argStyle">YOUR_STATE_VALUE</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>(If you’re taking advantage of the <span class="symbolInProse">Retrieve verify button code</span> operation, the button code will initiate the call to the authorization server for you when the button is clicked.)</p>
+</div>
+<div class="paragraph">
+<p>This call will first display the Capital One login page and initiate the login process; once login is successful, the consent page (shown above) will be displayed.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Two-factor authentication may be required for successful login. In production, your customers can use Capital One Mobile’s SwiftID for the second factor if they have registered for this service, or they can request a one-time password. We’ve provided two <a href="#_testing">test accounts</a> on the co-dev server that will require this second login step; you’ll need some assistance from your Capital One product manager to make this work in your testing.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If the login is successful and consent is provided, the authorization server sends the authorization code as a query parameter appended to your redirect URI, together with the state parameter value if you provided it, like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>https://<span class="argStyle">YOUR_REDIRECT_URI</span>?code=<span class="argStyle">YOUR_AUTHORIZATION_CODE</span>&amp;state=<span class="argStyle">YOUR_STATE_VALUE</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+If you provide the state value, be sure to check the returned value against the original value that you sent before proceeding to the next step. If the values do not match, the request is a forgery, and you should go no further. Ignore the request, and <a href="https://developer-support.capitalone.com/hc/en-us/requests/new">file a support ticket</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_obtaining_an_access_token">Obtaining an access token</h4>
+<div class="paragraph">
+<p>You then exchange the authorization code for an access token with a request that looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>curl -i -k --tlsv1 -v -H "Accept:application/json" -H "Content-Type:application/x-www-form-urlencoded" -d "code=<span class="argStyle">YOUR_AUTHORIZATION_CODE</span>&amp;client_id=<span class="argStyle">YOUR_CLIENT_ID</span>&amp;client_secret=<span class="argStyle">YOUR_CLIENT_SECRET</span>&amp;grant_type=authorization_code&amp;redirect_uri=<span class="argStyle">YOUR_REDIRECT_URI</span>" -X POST <span class="symbolInProse">https://apiit.capitalone.com</span>/oauth2/token</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the request succeeds, the authorization server returns the access token and related data in JSON format. The response looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+{
+  "access_token" : "eyJlbmMiOiJBMTI4Q0JDX0hTMjU2IiwicGNrIjoxLCJhbGciOiJESVIiLCJraWQiOiJhN3EifQ..LMm-IfPx30t7zNd0y4MHsw.-Rht_7LuBvQ2sAg8yGEw82VUChHIYiHGKr9HghRINfsNsJPaGGvvI24iQhxjTMPdYSNEZLRT_Ps6mLAPmfOb4J_FOjihbxb5uC0zRkAkFw-fTetzuqCzUTKG4AOLF_25IGn3ZroEzkkuMB9OcGgS15bNNDcTcE0InDRgvdU25_Qt774rvXRQCUxwEeBkN_g7ja-BRJy2q2nwFpRVLHjw0g.dESEDQZGkRKFyShPUfDNEw",
+  "token_type" : "Bearer",
+  "expires_in" : 900,
+  "refresh_token" : "eyJlbmMiOiJBMTI4Q0JDX0hTMjU2IiwicGNrIjoxLCJhbGciOiJESVIiLCJraWQiOiJhN3EifQ..8Xjh0FxH6cSUAtY5LiZbTg._1q4PFzelE5eF45WpbKHj77_JkVelK6kR-2bh5F2czKLySGEiXWdU3T4-b2s5sc28WJUFN6-aTOWE31uMCUJTzRvtsv4y2Mtm3BikrUqGsBc18TKJlYIRL8TmM_-HCtKtD_0gFwuEKgzDmc0qlyqtYdlHWNf2ThzDeORLVe8iyYk021qVxbmTNyzJY5S27WrikYMzR0Q-x2QteNcishEYA.KiVzviU1jr33G5O0QHuAcw"
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You then include the access token in an authorization header in your requests, like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Authorization: Bearer eyJlbmMiOiJBMTI4Q0JDX0hTMjU2IiwicGNrIjoxLCJhbGciOiJESVIiLCJraWQiOiJhN3EifQ..LMm-IfPx30t7zNd0y4MHsw.-Rht_7LuBvQ2sAg8yGEw82VUChHIYiHGKr9HghRINfsNsJPaGGvvI24iQhxjTMPdYSNEZLRT_Ps6mLAPmfOb4J_FOjihbxb5uC0zRkAkFw-fTetzuqCzUTKG4AOLF_25IGn3ZroEzkkuMB9OcGgS15bNNDcTcE0InDRgvdU25_Qt774rvXRQCUxwEeBkN_g7ja-BRJy2q2nwFpRVLHjw0g.dESEDQZGkRKFyShPUfDNEw</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This token can be used for calls to either <span class="symbolInProse">Retrieve salt secret</span> or <span class="symbolInProse">Prove identity</span>.</p>
+</div>
+<div class="paragraph">
+<p>The access token is short-lived. You’ll know that the token has expired when the calls that you make return a 401 HTTP status code and the code value, in the response body, is 101217. When it expires, you exchange the refresh token for a new access token. The refresh token is valid for only a single use, but each access token grant includes a new refresh token.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The token expiration, as expressed by the <span class="symbolInProse">expires in</span> value, is particularly important. If the token expires, the user session has to be re-initiated. To avoid this, you should check the age of the access token when your app is launched and pro-actively request a new token if one is nearing its expiration. To properly gauge the age of your access token, you must use the <span class="symbolInProse">expires in</span> value as it is given in the <em>Retrieve access token</em> response. You shouldn’t, for example, hard-code the value given in this example.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_using_the_refresh_token">Using the refresh token</h4>
+<div class="paragraph">
+<p>A request to exchange a refresh token for a new access token looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>curl -i -k --tlsv1 -H "Accept:application/json" -H "Content-Type:application/x-www-form-urlencoded" -d "client_id=<span class="argStyle">YOUR_CLIENT_ID</span>&amp;client_secret=<span class="argStyle">YOUR_CLIENT_SECRET</span>&amp;grant_type=refresh_token&amp;refresh_token=<span class="argStyle">REFRESH_TOKEN_FROM_ACCESS_TOKEN_RESPONSE</span>" -X POST <span class="symbolInProse">https://apiit.capitalone.com</span>/oauth2/token</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And the new access token is returned as in the original request token response. Note that the token values are truncated here, but appear as full JWTs in the actual response:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+{
+  "access_token" : "eyJlbmMiOiJBMTI4Q0JDX0hTMjU2IiwicGNrIjoxLCJhbGciOiJESVIiLCJraWQiOiJhN3EifQ..AFa9GSSn9DcH8oWJKty_Rw....",
+  "token_type" : "Bearer",
+  "expires_in" : 900,
+  "refresh_token" : "eyJlbmMiOiJBMTI4Q0JDX0hTMjU2IiwicGNrIjoxLCJhbGciOiJESVIiLCJraWQiOiJhN3EifQ..LMm-IfPx30t7zNd0y4MHsw....",
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_managing_bad_tokens">Managing bad tokens</h4>
+<div class="paragraph">
+<p>An access token can become invalid for various reasons — it may expire, the customer can revoke authorization, or something can go wrong on the authorization server.</p>
+</div>
+<div class="paragraph">
+<p>You should always try to get another access token by using the refresh token, but sometimes the refresh token may also be invalid. If this happens, you’ll have to request authorization from your users again.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_gateway_errors">Gateway errors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Our API gateway defines the following errors that are shared across products. Errors that are unique to individual products are documented in the <span class="symbolInProse">Response</span>: <span class="symbolInProse">Error Codes</span> section for each operation.</p>
+</div>
+<div class="paragraph">
+<p>When a Capital One API returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body  contains an <span class="symbolInProse">Error Response Structure</span> that describes the error that caused the fault:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="symbolInProse">code</span> (integer) — A six-digit integer that identifies the cause of the error. You can feed the <span class="symbolInProse">code</span> value into an error handler or use it to otherwise predicate your code.</p>
+</li>
+<li>
+<p><span class="symbolInProse">description</span> (string) — A plaintext, human-readable description of the error. The audience for this string is you, the app developer; you mustn’t display the message to the end-user.</p>
+</li>
+<li>
+<p><span class="symbolInProse">documentationUrl</span> (string) — The URL of the developer documentation that directs you to more information about the error. This URL is provided as an aid that you can use during development; you mustn’t display the URL to the end-user.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Only one error is returned per API invocation.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Many of these error conditions are validation errors: a required query parameter is missing, or the value of a body property is badly formed. In practice, your client application should always validate input values <em>before</em> the API is called, so it should never see input validation errors.
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 9.0909%;">
+<col style="width: 90.9091%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Code</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101216</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <span class="symbolInProse">Authorization</span> header token is invalid.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101217</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <span class="symbolInProse">Authorization</span> header token has expired.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101301</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The URL couldn’t be reached.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101302</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The URL isn’t recognized.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101303</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The service is unavailable due to rate limiting.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101304</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The service is unavailable due to heavy traffic.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101305</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You’re not authorized to access this API. See the <code>description</code> property in the response body for more information about why access has been denied.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101999</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">General system error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103000</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You’re not authorized to access this API.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103001</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The resource couldn’t be found.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103002</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">General system error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103003</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The server is unavailable.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103004</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The server timed out.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103005</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The request contains a conflict.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103006</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You’re not authorized to access this API.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103007</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The request was denied.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103008</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You’re not authorized to access this API.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103099</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">General system error.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_testing">Testing</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The sandbox and co-dev test servers provide access to special sets of test data that mimic the live customer data you might interact with in production use; you’ll use this test data to experiment with the available operations and test your application code. This protects our live data (and our customers!) from any corruption or change that might result from your testng.</p>
+</div>
+<div class="paragraph">
+<p>The <span class="symbolInProse">Prove identity</span> test data is provided via a set of dummy accounts specially designed for that purpose; to test with the sample data provided, log in as one of the following users during the authorization process:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Sandbox server test accounts</caption>
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 50.0002%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Username</th>
+<th class="tableblock halign-left valign-top">Password</th>
+<th class="tableblock halign-left valign-top">Personal Data</th>
+<th class="tableblock halign-left valign-top">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">verify_success</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sandbox@123</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">any values</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Models a successful verification.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">verify_failure</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sandbox@123</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">any values</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Models a failed verification</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">verify_expiredsalt</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sandbox@123</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">any values</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Models a verification that fails due to the use of an expired salt secret. The salt secret you use need not be expired.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Co-dev server test accounts</caption>
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Username</th>
+<th class="tableblock halign-left valign-top">Password</th>
+<th class="tableblock halign-left valign-top">SSN</th>
+<th class="tableblock halign-left valign-top">Date of birth</th>
+<th class="tableblock halign-left valign-top">Last name</th>
+<th class="tableblock halign-left valign-top">2FA required?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ggordon</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Test1234</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">555111111</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10/09/1937</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GUESS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">iselah</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Test1234</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">555222222</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">08/22/1922</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HERROLD</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">harrietth</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Test1234</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">555333333</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">06/10/1947</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HANSEU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mwortman</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Test1234</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">555444444</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">09/04/1991</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">WORTMAN</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Each of the co-dev server test users should be successfully verified.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+You’ll need a little help to set up testing that makes use of the first two co-dev server accounts, because they require two-factor authentication; contact your Capital One product manager for assistance.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For a quick look at how to make the <span class="symbolInProse">Verify with Capital One</span> API calls, see the <a href="#_hello_world">Hello world</a> example.</p>
+</div>
+<div class="sect3">
+<h4 id="_test_scenarios">Test scenarios</h4>
+<div class="paragraph">
+<p>The sandbox server test data allows you to test three basic scenarios:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>successful verification;</p>
+</li>
+<li>
+<p>verification failure; and</p>
+</li>
+<li>
+<p>verification failure due to use of an expired salt secret.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The provided co-dev server data allows you to text more complex scenarios, including:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the happy path for a customer registered for the SwiftID service.</p>
+</li>
+<li>
+<p>the happy path for a customer <strong>not</strong> registered for the SwiftID service.</p>
+</li>
+<li>
+<p>the happy path for a customer registered for the SwiftID service who chooses to validate using a one-time password instead.</p>
+</li>
+<li>
+<p>the happy path for a customer who is not challenged to provide two-factor authentication.</p>
+</li>
+<li>
+<p>the error state when the login is correct but the provided personal information is not matched (use one of the users defined above but change the personal information).</p>
+</li>
+<li>
+<p>the error state when an invalid login is used (use any random values for username and/or password).</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Be careful about using a valid username and an invalid password; after five unsuccessful tries the user account will be locked.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>the error state that results when either <span class="symbolInProse">Retrieve salt secret</span> or <span class="symbolInProse">Prove identity</span> is called with an expired access token.</p>
+</li>
+<li>
+<p>the error state that results when <span class="symbolInProse">Prove identity</span> is called using values hashed with an expired salt secret.</p>
+</li>
+<li>
+<p>the error state that results when <span class="symbolInProse">Prove identity</span> is called using values hashed with a method other than SHA-256.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>To test the <span class="symbolInProse">Retrieve verify button code</span> operation in the co-dev server, no special test data is required; all you need is the appropriate set of credentials for the client credentials OAuth call. To test the returned button code, use any of the provided co-dev server test accounts.</p>
+</div>
+<div class="paragraph">
+<p>Neither the operation to retrieve the button code nor the use of the button itself is supported in the sandbox.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="resource">
+<h2 class="resourceName" id="_verify_with_capital_one">Verify with Capital One</h2>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p><span class="symbolInProse">Verify with Capital One</span> allows you to confirm customer identity by verifying that the personal information they provide belongs to a Capital One customer.</p>
+</div>
+<div class="paragraph">
+<p>Three operations are provided:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#_retrieve_verify_button_code"><span class="symbolInProse">Retrieve verify button code</span></a>, which returns fully-customized and ready-to-use HTML code you can insert in your experience to provide a <strong>Verify with Capital One</strong> button; when your end users click on the button, they’ll be prompted to log in to a Capital One account to initiate the OAuth authorization code process.</p>
+</li>
+<li>
+<p><a href="#_retrieve_salt_secret"><span class="symbolInProse">Retrieve salt secret</span></a>, which returns a salt secret you must use to hash your end user’s personal information before incuding it in the <span class="symbolInProse">Prove identity</span> call.</p>
+</li>
+<li>
+<p><a href="#_prove_identity"><span class="symbolInProse">Prove identity</span></a>, which returns a response indicating whether or not Capital One was able to verify that the personal information provided matches the logged-in user.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="operation">
+<h3 class="operationName" id="_retrieve_verify_button_code">Retrieve verify button code</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Returns fully-customized and ready-to-use HTML code you can use to add a <strong>Verify with Capital One</strong> button to your experience:</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="{base.path.static.content}/DevPortal/assets/images/api/identity/verify_button.png" alt="Verify with Capital One button"></span></p>
+</div>
+<div class="paragraph">
+<p>When your end users click on this button, they’ll be prompted to log in to a Capital One account to initiate the <a href="#_authorization">OAuth authorization code process</a>.</p>
+</div>
+</div>
+<div class="curlHolder"><code class="curl"><pre>-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: 84b2d1f04c524be32630921e989e1954c" -H "Accept: text/html;v=1" -H "Client-Correlation-Id: 1534avpiedk0921" -X GET "https://api-sandbox.capitalone.com/identity/proof/tools/web-button?redirectURI=http://mywebsite.com"
+
+--RESPONSE--
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 272
+Date: Wed, 16 Aug 2017 13:39:32 GMT
+
+&lt;button class="EXID-btn" onclick="window.location='https://apiit.capitalone.com/oauth2/authorize?client_id=d1b8df2ea0e7465a91695ccf6181&amp;grant_type=authorization_code&amp;redirect_uri=http://abc.com&amp;scope=verify&amp;response_type=code'"&gt;Verify with Capital One&lt;/button&gt;</pre></code></div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': '84b2d1f04c524be32630921e989e1954c',
+  'Accept': 'text/html;v=1',
+  'Client-Correlation-Id': '1534avpiedk0921'
+}
+
+// Assemble the query parameters
+var queryParams = {
+  'redirectURI': 'http://mywebsite.com'
+}
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'GET', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/identity/proof/tools/web-button' + queryString.stringify(queryParams),
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var retrieveVerifyButtonCode = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Finish sending the request
+retrieveVerifyButtonCode.end();
+
+</pre></code></div>
+<div class="operationContainer GET">
+<div class="endpoint">
+<span class="endpointVerb">GET</span>
+<span class="endpointUrl">/identity/proof/tools/web-button</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p>
+</div>
+<div class="paragraph">
+<p>You can use a token created with the client credentials (two-legged) OAuth flow.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Specifies the MIME type that you’ll accept in the body of the response <em>and</em> declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Accept: text/html;v=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more information about versioning, although there’s not much more to say, see <a href="#_versioning">Versioning</a>.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Client-Correlation-Id</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A unique string that is generated by the client, to help track API traffic and address any server-side support issues that might arise. Must be a unique alphanumeric string; maximum length is 100 characters.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection queryParameters">
+<h5 class="syntaxSectionLabel">Query Parameters</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">redirectURI</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The <span class="symbolInProse">Redirect URI</span> you’ve configured for your app; this value will be included in the returned HTML button code, along with your app’s <span class="symbolInProse">Client ID</span>, so that the code is fully customized for your app. Maximum length is 100 characters.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. See <a href="/platform-documentation/errors">Errors</a> for details.</p>
+<div class="toggle">
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">200</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Button code was successfully returned.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">400</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A required request field is malformed or missing. See <strong>Error Codes</strong> for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Internal Server Error.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+<div class="syntaxSection bodyRaw">
+<h5 class="syntaxSectionLabel">Payload</h5>
+<div class="toggle">
+<span class="elementDataType">text/html</span>
+
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Provides customized, ready-to-use HTML code for inserting a <strong>Verify with Capital One</strong> button into your user experience. Clicking the button will initiate the authorization code OAuth process and prompt your end user to log in to a Capital One account.</p>
+</div>
+<div class="paragraph">
+<p>Note that this button code is dependent on the following JavaScript:</p>
+</div>
+<div class="paragraph">
+<p>For co-dev server use:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>  &lt;script type="text/javascript" src="https://identitytest.capitalone.com/c1-identity-buttons/js/script.min.js"&gt;&lt;/script&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For production use:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>  &lt;script type="text/javascript" src="https://identity.capitalone.com/c1-identity-buttons/js/script.min.js"&gt;&lt;/script&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection errorCodes">
+<h5 class="syntaxSectionLabel">Error Codes</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206001</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The value of the specified query parameter is invalid. See the property description for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206002</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The specified query parameter is missing. See the property description for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206003</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The value of the <span class="symbolInProse">Client-Correlation-Id</span> or <span class="symbolInProse">redirectURI</span> is too long; max length for either is 100 characters.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206006</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Internal Server Error. The server encountered an unexpected condition which prevented it from fulfilling the request.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="operation">
+<h3 class="operationName" id="_retrieve_salt_secret">Retrieve salt secret</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Provides the salt secret that you must include when you hash your customer data before passing it to the <span class="symbolInProse">Prove identity</span> operation.</p>
+</div>
+<div class="paragraph">
+<p>Returns a new salt secret if:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It’s the first secret for a client</p>
+</li>
+<li>
+<p>An existing secret has expired</p>
+</li>
+<li>
+<p>The <span class="symbolInProse">forceCreate</span> query parameter is set to <code>true</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Otherwise, returns the existing salt secret.</p>
+</div>
+</div>
+<div class="curlHolder"><code class="curl"><pre>-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: 84b2d1f04c524be32630921e989e1954c" -H "Accept: application/json;v=1" -H "Client-Correlation-Id: avpiedk15340921" -X POST "https://api-sandbox.capitalone.com/identity/salt?forceCreate=true"
+
+--RESPONSE--
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 122
+Date: Wed, 16 Aug 2017 13:39:32 GMT
+
+{"salt":"7beb7650-2a82-41d9-85c5-46e064e3af5f","saltExpirationTimestamp":"2017-08-16T09:39:31-04:00","saltVersion":"V1"}</pre></code></div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': '84b2d1f04c524be32630921e989e1954c',
+  'Accept': 'application/json;v=1',
+  'Client-Correlation-Id': 'avpiedk15340921'
+}
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'POST', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/identity/salt',
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var retrieveSaltSecret = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Finish sending the request
+retrieveSaltSecret.end();
+
+</pre></code></div>
+<div class="operationContainer POST">
+<div class="endpoint">
+<span class="endpointVerb">POST</span>
+<span class="endpointUrl">/identity/salt</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p>
+</div>
+<div class="paragraph">
+<p><span class="symbolInProse">Retrieve salt secret</span> accepts a token generated using <strong>either</strong> the client-credentials (two-legged) or authorization code (three-legged) OAuth flow.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Specifies the MIME type that you’ll accept in the body of the response <em>and</em> declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Accept: application/json;v=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more information about versioning, although there’s not much more to say, see <a href="#_versioning">Versioning</a>.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Client-Correlation-Id</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A unique string that is generated by the client, to help track API traffic and address any server-side support issues that might arise. Must be a unique alphanumeric string; maximum length is 100 characters.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection queryParameters">
+<h5 class="syntaxSectionLabel">Query Parameters</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">forceCreate</span>
+<span class="elementDataType">boolean</span>
+
+<span class="elementDefaultValue ">false</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>If set to <code>true</code>, forces creating a new salt. First invalidates the existing salt on our servers.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. See <a href="/platform-documentation/errors">Errors</a> for details.</p>
+<div class="toggle">
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">200</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>OK</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">400</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A required request field is malformed or missing. See <strong>Error Codes</strong> for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Internal server error.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+<div class="syntaxSection errorCodes">
+<h5 class="syntaxSectionLabel">Error Codes</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206001</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The value of the specified query parameter is invalid. See the property description for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206002</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The specified query parameter is missing. See the property description for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206003</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The value of the specified query parameter is too long. See the property description for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206006</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Internal Server Error. The server encountered an unexpected condition which prevented it from fulfilling the request.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<code class="json"><pre>
+{
+  "salt": "7beb7650-2a82-41d9-85c5-46e064e3af5f",
+  "saltExpirationTimestamp": "2017-08-16T09:39:31-04:00",
+  "saltVersion": "V1"
+}</pre></code><div class="syntaxSection bodyProperties">
+<h5 class="syntaxSectionLabel">Body Properties</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">salt</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The 128-bit salt secret value</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">saltExpirationTimestamp</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The time when the salt secret expires, in ISO 8601 format <code>YYYY-MM-DDThh:mm:ssTZD</code>.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">saltVersion</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The version of the salt secret. Incremented by 1 for every new salt. Initial version is V1.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="operation">
+<h3 class="operationName" id="_prove_identity">Prove identity</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Returns a response that indicates whether the customer was verified as a Capital One customer. An HTTP response of 204 verifies a Capital One customer. A 404 response indicates that the provided data did not match a Capital One customer.</p>
+</div>
+</div>
+<div class="curlHolder"><code class="curl"><pre>-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: string" -H "Accept: string" -H "Client-Correlation-Id: avpiedk15340921" -X GET "https://api-sandbox.capitalone.com/identity/proof?ssnToken=66acd1fdb9bf0ff68dc9e9e97cf59cedc8e5a455edd1c3d08c6cd135e37f6784&amp;dateOfBirthToken=a3e420a3405f5e31af78ad408e7d1f02f1be62b829b798e304191cc13f658028&amp;lastNameToken=f90d3d3c9025de60679658b8a11ba239febd5b0b8fdcd2bfdc4a1ce363610f40&amp;saltVersion=V1"
+
+--RESPONSE--
+HTTP/1.1 204 No Content
+Content-Type: string
+Content-Length: 0
+Date: Wed, 16 Aug 2017 13:39:32 GMT
+
+</pre></code></div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': 'string',
+  'Accept': 'string',
+  'Client-Correlation-Id': 'avpiedk15340921'
+}
+
+// Assemble the query parameters
+var queryParams = {
+  'ssnToken': '66acd1fdb9bf0ff68dc9e9e97cf59cedc8e5a455edd1c3d08c6cd135e37f6784',
+  'dateOfBirthToken': 'a3e420a3405f5e31af78ad408e7d1f02f1be62b829b798e304191cc13f658028',
+  'lastNameToken': 'f90d3d3c9025de60679658b8a11ba239febd5b0b8fdcd2bfdc4a1ce363610f40',
+  'saltVersion': 'V1'
+}
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'GET', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/identity/proof' + queryString.stringify(queryParams),
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var proveIdentity = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Finish sending the request
+proveIdentity.end();
+
+</pre></code></div>
+<div class="operationContainer GET">
+<div class="endpoint">
+<span class="endpointVerb">GET</span>
+<span class="endpointUrl">/identity/proof</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p>
+</div>
+<div class="paragraph">
+<p><span class="symbolInProse">Prove identity</span> requires a token created using the authorization code (three-legged) OAuth flow.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Specifies the MIME type that you’ll accept in the body of the response <em>and</em> declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Accept: application/json;v=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more information about versioning, although there’s not much more to say, see <a href="#_versioning">Versioning</a>.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Client-Correlation-Id</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A unique string that is generated by the client, to help track API traffic and address any server-side support issues that might arise. Must be a unique alphanumeric string; maximum length is 100 characters.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection queryParameters">
+<h5 class="syntaxSectionLabel">Query Parameters</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">ssnToken</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>SHA-256 hash of the salt secret plus the customer’s social security number (SSN). Before salting and hashing, the SSN must be in the format XXXXXXXXX (no dashes, 9 digits); the salt value must be prepended to the SSN before hashing. Maximum length is 100 characters.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">dateOfBirthToken</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>SHA-256 hash of the salt secret plus the customer’s date of birth (DOB). Before salting and hashing, the DOB must be in the format MM/DD/YYYY; the salt value must be prepended to the DOB before hashing. Maximum length is 100 characters.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">lastNameToken</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>SHA-256 hash of the salt secret plus the customer’s last name. Before salting and hashing, the last name must be all upper case, alphabetic characters only; remove any spaces or special characters and prepend the salt value before hashing. Maximum length is 100 characters.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">saltVersion</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The version of the salt that was included before hashing. See the <span class="symbolInProse">Retrieve salt secret</span> operation for details.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. See <a href="/platform-documentation/errors">Errors</a> for details.</p>
+<div class="toggle">
+
+
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">204</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Successfully verified the client customer as a Capital One customer.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">400</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A required request field is malformed or missing. See <strong>Error Codes</strong> for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">404</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Not Found.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">409</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An external requirement for this API call is not met. See <strong>Error Codes</strong> for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Internal server error.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+<div class="syntaxSection errorCodes">
+<h5 class="syntaxSectionLabel">Error Codes</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206001</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The value of the specified query parameter is invalid. See the property description for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206002</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The specified query parameter is missing. See the property description for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206003</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The value of the specified query parameter is too long. See the property description for details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206004</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A customer record could not be found for the specified query parameters.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206005</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The salt version has expired.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">206006</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Internal Server Error. The server encountered an unexpected condition which prevented it from fulfilling the request.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>

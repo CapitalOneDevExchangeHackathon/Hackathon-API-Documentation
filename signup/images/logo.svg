@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80px" height="80px" viewBox="0 0 80 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 43.1 (39012) - http://www.bohemiancoding.com/sketch -->
+    <title>Artboard</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M4.6629367e-15,5.98518846e-07 C5.93387391,14.659152 20.305527,25 37.0924145,25 C53.8793021,25 68.2509551,14.659152 74.184829,5.98518846e-07 L-4.09400086e-06,7.10542736e-15 Z" id="path-1"></path>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard">
+            <g id="Group-2">
+                <circle id="Oval" fill="#496174" cx="40" cy="40" r="40"></circle>
+                <g id="Group-3" transform="translate(14.000000, 21.000000)">
+                    <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="52" height="38" rx="5"></rect>
+                    <path d="M39.8387097,1.26666667 L39.8387097,36.7333333" id="Line" stroke="#426177" stroke-width="3" stroke-linecap="square" stroke-dasharray="3,5"></path>
+                </g>
+                <path d="M33.9186691,47.6982785 L28.3499336,50.625936 C27.3676509,51.1423526 26.7215217,50.6854425 26.911032,49.5805128 L27.9745659,43.3796348 L23.4693642,38.9881485 C22.6746808,38.2135236 22.9095632,37.4578253 24.0189757,37.2966182 L30.2450113,36.3919223 L33.029379,30.7501771 C33.5205204,29.755016 34.3118148,29.7448788 34.8079592,30.7501771 L37.5923269,36.3919223 L43.8183625,37.2966182 C44.9165879,37.4561997 45.1707524,38.2056329 44.367974,38.9881485 L39.8627723,43.3796348 L40.9263062,49.5805128 C41.1139055,50.6743007 40.4796933,51.1476131 39.4874046,50.625936 L33.9186691,47.6982785 Z" id="Star" fill="#496174"></path>
+                <g id="Group" transform="translate(3.000000, 55.000000)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <use id="Combined-Shape" fill-opacity="0.9" fill="#2F2F2F" xlink:href="#path-1"></use>
+                </g>
+                <text id="INVITE-ONLY" font-family="Optimist-Regular, Optimist" font-size="9" font-weight="normal" line-spacing="9" fill="#FFFFFF">
+                    <tspan x="26" y="66">INVITE </tspan>
+                    <tspan x="27.89" y="75">ONLY</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>
