@@ -9,3 +9,5 @@
 - [Verify](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/verify/)
 
 - [Merchant Insights](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/merchant-insights/)
+
+- [Retail Discounts](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/retail-discounts/)

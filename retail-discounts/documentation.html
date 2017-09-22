@@ -1,0 +1,2456 @@
+
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_overview">Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <span class="symbolInProse">Retail Discounts</span> API manages the discount coupons that are offered by a
+a retail chain or coupon aggregrator. Using the <span class="symbolInProse">Retail Discounts</span> operations a coupon provider can…​</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Register a set of coupons that can be redeemed at a storefront or website.</p>
+</li>
+<li>
+<p>Retrieve statistics about a coupon (how many times has it been redeemed? how many times liked and refused?)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>And the end-user can…​</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Find coupons that are offered by chain or that are offered by nearby storefronts.</p>
+</li>
+<li>
+<p>Retrieve offer details about a specific coupon.</p>
+</li>
+<li>
+<p>Provide feedback about a coupon transaction (was the coupon refused? was it 'liked'?)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>By combining these operations — and after asking permission from the end user — a coupon application could
+even push coupons to a customer’s mobile device as he or she walks past a storefront.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_servers">Servers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <span class="coDevExStyle">Capital One DevExchange</span> platform provides two servers that serve distinct purposes. You use the sandbox server while you’re building and testing your app:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code><span class="symbolInProse">https://api-sandbox.capitalone.com</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And you use the production server when you’re ready to go live:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code><span class="symbolInProse">https://api.capitalone.com</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You need a completed app and special credentials in order to access the production server, as explained in <a href="/platform-documentation/going-live">Going Live</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_versioning">Versioning</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When you make a Capital One API call, you must declare the version of the endpoint that you want to invoke. The version is declared by appending a <strong>v=<em>N</em></strong> element to the <span class="symbolInProse">Accept</span> header, where <strong><em>N</em></strong> gives the major version number. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Accept: application/json; v=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Version numbers are always whole numbers, and are always specified by major version only; if a minor version of the API exists, your call will automatically go to the highest-available minor version. If you call a version that does not exist, you’ll get a 403 status code in response.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_authorization">Authorization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <span class="symbolInProse">Retail Discounts</span> API uses the "client credentials" OAuth flow to authorize your application.
+In this flow, you  take the client id and client secret that you obtained when you registered your app (see <a href="/platform-documentation/getting-started">Getting Started</a>)
+and exchange them for an "access token" by calling the <span class="symbolInProse">Retrieve access token</span> API.</p>
+</div>
+<div class="paragraph">
+<p>As you’re developing your app, you’ll retrieve two access tokens: One for the sandbox, and another when you’re ready to move to
+production. The example, below,
+retrieves an access token for the sandbox; to retrieve your production access token, you make the same call but use <span class="symbolInProse">https://api.capitalone.com</span>
+as the host.</p>
+</div>
+<div class="sect3">
+<h4 id="_retrieve_your_access_token">Retrieve your access token</h4>
+<div class="paragraph">
+<p>Expressed in cURL, a <span class="symbolInProse">Retrieve access token</span> invocation (for the sandbox) looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>curl -i -k --tlsv1 -X POST <span class="symbolInProse">https://api-sandbox.capitalone.com</span>/oauth/oauth20/token \
+  -d <span class="symbolInProse">client_id</span>=<span class="argStyle">YOUR_CLIENT_ID</span> \
+  -d <span class="symbolInProse">client_secret</span>=<span class="argStyle">YOUR_CLIENT_SECRET</span> \
+  -d <span class="symbolInProse">grant_type</span>=<span class="symbolInProse">client_credentials</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<span class="symbolInProse">client_credentials</span> is a literal value.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The access token is returned in the <span class="symbolInProse">access_token</span> response property:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+   "<span class="symbolInProse">access_token</span>" : <span class="argStyle">"5354e3a56036056cffb5a99f368a31cef3aee2a8"</span>,
+   "<span class="symbolInProse">token_type</span>" : "Bearer",
+   "<span class="symbolInProse">expires_in</span>" : 1295999,
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_use_your_access_token">Use your access token</h4>
+<div class="paragraph">
+<p>To invoke a <span class="symbolInProse">Retail Discounts</span> operation, you take the value of the <span class="symbolInProse">access_token</span> property that was returned in the <span class="symbolInProse">Retrieve access token</span> response
+and pass it as a "Bearer" token in the  <span class="symbolInProse">Authorization</span> header:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Authorization: Bearer 5354e3a56036056cffb5a99f368a31cef3aee2a8</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The access token is valid for <span class="symbolInProse">expires_in</span> seconds.
+You’ll know that the token has expired when an operation returns a <span class="symbolInProse">401</span> HTTP status code <em>and</em> the <span class="symbolInProse">code</span>
+value,
+in the response body, is  <span class="symbolInProse">101217</span>. You can’t "refresh" an expired token. Instead, you get a new token
+by re-calling <span class="symbolInProse">Retrieve access token</span>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_gateway_errors">Gateway errors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Our API gateway defines the following errors that are shared across products. Errors that are unique to individual products are documented in the <span class="symbolInProse">Response</span>: <span class="symbolInProse">Error Codes</span> section for each operation.</p>
+</div>
+<div class="paragraph">
+<p>When a Capital One API returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body  contains an <span class="symbolInProse">Error Response Structure</span> that describes the error that caused the fault:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="symbolInProse">code</span> (integer) — A six-digit integer that identifies the cause of the error. You can feed the <span class="symbolInProse">code</span> value into an error handler or use it to otherwise predicate your code.</p>
+</li>
+<li>
+<p><span class="symbolInProse">description</span> (string) — A plaintext, human-readable description of the error. The audience for this string is you, the app developer; you mustn’t display the message to the end-user.</p>
+</li>
+<li>
+<p><span class="symbolInProse">documentationUrl</span> (string) — The URL of the developer documentation that directs you to more information about the error. This URL is provided as an aid that you can use during development; you mustn’t display the URL to the end-user.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Only one error is returned per API invocation.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Many of these error conditions are validation errors: a required query parameter is missing, or the value of a body property is badly formed. In practice, your client application should always validate input values <em>before</em> the API is called, so it should never see input validation errors.
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 9.0909%;">
+<col style="width: 90.9091%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Code</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101216</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <span class="symbolInProse">Authorization</span> header token is invalid.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101217</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <span class="symbolInProse">Authorization</span> header token has expired.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101301</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The URL couldn’t be reached.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101302</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The URL isn’t recognized.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101303</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The service is unavailable due to rate limiting.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101304</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The service is unavailable due to heavy traffic.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101305</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You’re not authorized to access this API. See the <code>description</code> property in the response body for more information about why access has been denied.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">101999</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">General system error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103000</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You’re not authorized to access this API.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103001</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The resource couldn’t be found.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103002</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">General system error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103003</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The server is unavailable.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103004</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The server timed out.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103005</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The request contains a conflict.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103006</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You’re not authorized to access this API.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103007</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The request was denied.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103008</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You’re not authorized to access this API.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="symbolInProse">103099</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">General system error.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_usage_limits">Usage limits</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Your use of this Capital One API is restricted to the following general limits:</p>
+</div>
+<div class="dlist glossary">
+<dl>
+<dt>Quota</dt>
+<dd>
+<p>20,000 requests / 24 Hours</p>
+<div class="paragraph">
+<p>Applications that exceed the daily limit won’t be cut off without notice, but we’ll reach out to the app owner by email to discuss your projected traffic.</p>
+</div>
+</dd>
+<dt>Rate Limit (Transactions per Second)</dt>
+<dd>
+<p>The frequency with which your application calls the Capital One APIs may be throttled to protect the overall service (it might be "rate limited"). When a call fails due to rate limiting, it will return a <span class="symbolInProse">429</span> HTTP status and a response body <span class="symbolInProse">code</span> value of <span class="symbolInProse">101303</span>.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+<div class="resource">
+<h2 class="resourceName" id="_retail_discounts">Retail Discounts</h2>
+<div class="toggle">
+<div class="operation">
+<h3 class="operationName" id="_register_a_coupon">Register a coupon</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Registers a new coupon and adds it to the catalog of coupons that this chain offers to customers.
+As part of the registration, Capital One checks the data that you supply to ensure that…​</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The merchant name and the coupon are authentic.</p>
+</li>
+<li>
+<p>The coupon image doesn’t contain objectionable material.</p>
+</li>
+<li>
+<p>The callback URLs don’t pose a security threat.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If this check fails, the operation returns a _409 status. If there’s no problem with the data — and all other
+technical requirements are met — the operation returns _201 and returns a  <span class="symbolInProse">couponId</span> value that uniquely identifies
+the newly-created coupon.</p>
+</div>
+<div class="paragraph">
+<p>Note that this operation doesn’t check the authenticity of the chain
+contact information that you provide through the <span class="symbolInProse">chainContact</span> object.</p>
+</div>
+</div>
+<div class="operationContainer POST">
+<div class="endpoint">
+<span class="endpointVerb">POST</span>
+<span class="endpointUrl">/experimental/retail-discounts/coupons</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription"><p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Content-Type</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription">
+<p>Specifies the MIME type of the data in the request body. The setting should be exactly this:</p>
+<code><pre>Content-Type: application/json</pre></code>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription">
+<p>Specifies the MIME type that you’ll accept in the body of the response <em>and</em> declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+<code><pre>Accept: application/json;v=0</pre></code>
+</div>
+</div>
+
+
+
+</div>
+</div>
+<code class="json"><pre>
+{
+  "title": "Tires: Buy 3, get 1 free through 12/17",
+  "description": "Buy three tires and get the fourth tire free! Good through the end of 2017.",
+  "expirationDate": "2017-12-31",
+  "dealId": "a31946d950e7688ea5404",
+  "redemption": {
+    "couponCode": "bedc706e803c3b6ee8e6f",
+    "couponImageUrl": "https://www.pepboys.com/popboyslogo.png"
+  },
+  "disclosures": [
+    {
+      "title": "Details and Exclusions",
+      "disclosureText": "Good through December 31, 2017. Cannot be combined with other offers or discounts."
+    }
+  ],
+  "callbacks": {
+    "couponPresentedUrl": "https://api.pepboys.com/couponPresented/pbc3456",
+    "couponClickedUrl": "https://api.pepboys.com/couponClicked/pbc3456"
+  },
+  "chainName": "Pep Boys",
+  "chainContact": {
+    "phoneNumber": "8007372697",
+    "webSiteUrl": "https://www.pepboys.com/",
+    "emailAddress": "moe@pepboys.com"
+  }
+}</pre></code><div class="syntaxSection bodyProperties">
+<h5 class="syntaxSectionLabel">Body Properties</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">title</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A customer-friendly name for the coupon.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">description</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A customer-friendly, plaintext description of the coupon.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">expirationDate</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The date the coupon expires, given in ISO 8601 format (<code>YYYY-MM-DD</code>).</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">dealId</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A token that identifies (to the coupon provider) the campaign or other higher-level category that the
+coupon is part of. The <span class="symbolInProse">couponId</span> value can be any plaintext string.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">redemption</span>
+<span class="elementDataType">object</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The <span class="symbolInProse">redemption</span> object contains information and tools that are used to redeem the coupon.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponCode</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A sequence of characters that the customer can enter in order to identify (and thus redeem) the coupon.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponImageUrl</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The URL of an image that, when scanned, invokes an API that redeems the coupon.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponImageUrl</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The URL of a customer-facing image that displays the chain’s logo, or
+that represents the deal that the coupon is part of
+(as examples).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+This property doesn’t really belong in the <span class="symbolInProse">redemption</span> object. It will be moved in a later release.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">disclosures</span>
+<span class="elementDataType">[object]</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An array of objects where each object names and describes a condition or exception that could affect the
+customer’s ability to redeem the coupon, and that must be
+made known to the customer prior to redemption.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">title</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">disclosureText</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The name and description of a coupon disclosure. Both properties must be human-readable, plaintext strings.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">callbacks</span>
+<span class="elementDataType">object</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The callback URLs identify the APIs that you invoke when the customer interacts with a coupon that you
+present in your app. The APIs…​</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Are invoked through <code>POST</code>.</p>
+</li>
+<li>
+<p>Accept no message body.</p>
+</li>
+<li>
+<p>Return 204 upon success (with no message body).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If an API returns an HTTP status other than 204, you should re-<code>POST</code> the message.</p>
+</div>
+<div class="paragraph">
+<p>The identity of the coupon, in the coupon provider’s native identification system, is expected to be
+"baked into" the URL. A typical arrangement is for the provider to accept the coupon identifier
+as a path or query parameter; for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>https://api.pepboys.com/couponClicked/pbc3456
+
+or
+
+https://api.pepboys.com/couponClicked?id=pbc3456</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that the coupon identifier (<code>pbc3456</code>) is the provider’s own ID — it <em>isn’t</em> the <span class="symbolInProse">couponId</span>
+that’s returned by this operation (for how could it be? You don’t know the <span class="symbolInProse">couponId</span> for a coupon
+until after this operation returns).</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+The coupon callback system isn’t currently implemented.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponPresentedUrl</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponClickedUrl</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>These two properties give the URLs of the APIs that you must invoke when your
+app presents the coupon to the customer, and when the customer attempts to redeem the coupon
+by clicking on it, respectively.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">chainName</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The name of the chain that has offered and will redeem the coupon. Chain names must be unique.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Currently, the operation that finds coupons based on a chain’s name uses a full string
+(but case-insensitive) search. Because of this, you should use a chain’s common name as opposed to
+its legal name. For example: "Pep Boys" and not "The Pep Boys - Manny, Moe &amp; Jack"
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">chainContact</span>
+<span class="elementDataType">object</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Customer support information for the chain.
+Keep in mind that this information is for the entire chain; it’s not for a specific storefront.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">phoneNumber</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s 10-digit phone number with no punctuation.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">webSiteUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s website as a fully-qualified URL.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">emailAddress</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s 10-digit corporate phone number; no punctuation.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">webSiteUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s website as a fully-qualified URL.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. </p>
+<div class="toggle">
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">201</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A new coupon was successfully registered. The coupon’s ID is returned in the response body.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">400</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Client error.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Server Error.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+<code class="json"><pre>
+{
+  "couponId": "c42334c947df50b0c3eb5"
+}</pre></code><div class="syntaxSection bodyProperties">
+<h5 class="syntaxSectionLabel">Body Properties</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponId</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An opaque token that uniquely identifies the coupon.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': 'Bearer f3f0e9531471a6917a061',
+  'Content-Type': 'application/json',
+  'Accept': 'application/json;v=0'
+}
+
+// Write the request body
+requestBody = JSON.stringify({
+  "title": "Tires: Buy 3, get 1 free through 12/17",
+  "description": "Buy three tires and get the fourth tire free! Good through the end of 2017.",
+  "expirationDate": "2017-12-31",
+  "dealId": "a31946d950e7688ea5404",
+  "redemption": {
+    "couponCode": "bedc706e803c3b6ee8e6f",
+    "couponImageUrl": "https://www.pepboys.com/popboyslogo.png"
+  },
+  "disclosures": [
+    {
+      "title": "Details and Exclusions",
+      "disclosureText": "Good through December 31, 2017. Cannot be combined with other offers or discounts."
+    }
+  ],
+  "callbacks": {
+    "couponPresentedUrl": "https://api.pepboys.com/couponPresented/pbc3456",
+    "couponClickedUrl": "https://api.pepboys.com/couponClicked/pbc3456"
+  },
+  "chainName": "Pep Boys",
+  "chainContact": {
+    "phoneNumber": "8007372697",
+    "webSiteUrl": "https://www.pepboys.com/",
+    "emailAddress": "moe@pepboys.com"
+  }
+})
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'POST', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/experimental/retail-discounts/coupons',
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var registerACoupon = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Write the request body into the request message
+registerACoupon.write(requestBody);
+
+// Finish sending the request
+registerACoupon.end();
+
+</pre></code></div>
+<div class="curlHolder"><code class="curl"><pre>-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: Bearer f3f0e9531471a6917a061" -H "Content-Type: application/json" -H "Accept: application/json;v=0" -d '{"title":"Tires: Buy 3, get 1 free through 12/17","description":"Buy three tires and get the fourth tire free! Good through the end of 2017.","expirationDate":"2017-12-31","dealId":"a31946d950e7688ea5404","redemption":{"couponCode":"bedc706e803c3b6ee8e6f","couponImageUrl":"https://www.pepboys.com/coupons/pbc3546B_QRCode.png","couponImageUrl":"https://www.pepboys.com/popboyslogo.png"},"disclosures":[{"title":"Details and Exclusions","disclosureText":"Good through December 31, 2017. Cannot be combined with other offers or discounts."}],"callbacks":{"couponPresentedUrl":"https://api.pepboys.com/couponPresented/pbc3456","couponClickedUrl":"https://api.pepboys.com/couponClicked/pbc3456"},"chainName":"Pep Boys","chainContact":{"phoneNumber":"8007372697","webSiteUrl":"https://www.pepboys.com/","emailAddress":"moe@pepboys.com","webSiteUrl":"https://www.pepboys.com/"}}' -X POST "https://api-sandbox.capitalone.com/experimental/retail-discounts/coupons"
+
+--RESPONSE--
+HTTP/1.1 201 Created
+Content-Type: application/json
+Content-Length: 38
+Date: Fri, 22 Sep 2017 19:15:42 GMT
+
+{"couponId":"c42334c947df50b0c3eb5"}</pre></code></div>
+<div class="operation">
+<h3 class="operationName" id="_find_coupons_by_chain_name_andor_location">Find coupons by chain name and/or location</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>This operation retrieves information about the coupons that are offered by
+a specific, named retail chain, or that can be redeemed in stores that are within a
+geographic area, or both. For example, here we ask for a list of the coupons that can be
+redeemed at Pep Boys stores within a ten mile
+radius of Jim Thorpe, PA:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>GET /experimental/retail-discounts/coupons?chainName="Pep Boys"&amp;city="Jim Thorpe"&amp;stateCode=PA&amp;distance=10.0</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can also specify the center of the search by latitude and longitude:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>GET /experimental/retail-discounts/coupons?chainName="Pep Boys"&amp;latitude=40.870386&amp;longitude=-75.8180543&amp;distance=10.0</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When searching by geolocation you can provide <span class="symbolInProse">city</span> and <span class="symbolInProse">stateCode</span> <em>or</em> <span class="symbolInProse">latitude</span> and <span class="symbolInProse">longitude</span> but not both. If you provide
+both, <span class="symbolInProse">latitude</span>/<span class="symbolInProse">longitude</span> wins.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+Currently, only search by <span class="symbolInProse">chainName</span> is supported.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="operationContainer GET">
+<div class="endpoint">
+<span class="endpointVerb">GET</span>
+<span class="endpointUrl">/experimental/retail-discounts/coupons</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection queryParameters">
+<h5 class="syntaxSectionLabel">Query Parameters</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">chainName</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The name of the chain whose coupons you want to search for.
+The chainName filter can be combined with the location filters (either latitude/longitude or city/state).</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+Currently, the <span class="symbolInProse">chainName</span> is an exact (but case-insensitive) match. It’s not a
+substring match.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">latitude</span>
+<span class="elementDataType">number</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Latitude of the desired location specified in
+ISO 6709, two-digit degree format, North is positive, South is negative.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">longitude</span>
+<span class="elementDataType">number</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Longitude of the desired location specified in
+ISO 6709, three-digit degree format, East is positive, West is negative</p>
+</div>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Latitude and longitude of the center point of the search. The search area that surrounds this
+center point is defined by the <span class="symbolInProse">distance</span> property.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Latitude is expressed in ISO 6709, two-digit degree format, North is positive, South is negative.</p>
+</li>
+<li>
+<p>Longitude is ISO 6709, three-digit degree format, East is positive, West is negative</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For example, the Pep Boys Corporate Headquarters in Philadelphia, PA
+ is located at 40.005411, -75.180356.
+The latitude and longitude of North Shields, Northumberland, birthplace of Neil Francis Tennant of the
+Pet Shop Boys is 55.0131634,-1.4972564</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/pepShopBoys.png" alt="width:75%">
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">city</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">stateCode</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The city and state (given by name and two-digit USPS code, respectively)  in which you wish
+to look for stores that offer coupons.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">distance</span>
+<span class="elementDataType">number</span>
+
+<span class="elementDefaultValue ">5.0</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The radius of the store search, in miles, centered on the latitude/longitude or city/state location. The maximum
+search radius is 50 miles.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription"><p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription">
+<p>Specifies the MIME type that you’ll accept in the body of the response <em>and</em> declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+<code><pre>Accept: application/json;v=0</pre></code>
+</div>
+</div>
+
+
+</div>
+</div>
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. </p>
+<div class="toggle">
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">200</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The operation was successful. The coupons that were discovered are returned in the <span class="symbolInProse">coupons</span> array.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">400</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Client error.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The API encountered an error while attempting to communicate with the back end.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+<code class="json"><pre>
+{
+  "coupons": [
+    {
+    }
+  ]
+}</pre></code><div class="syntaxSection bodyProperties">
+<h5 class="syntaxSectionLabel">Body Properties</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">coupons</span><span class="requiredMark">*</span>
+<span class="elementDataType">[object]</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An array of coupon objects that fulfill the search criteria. For a definition of
+a coupon object, see the reponse body in the <span class="symbolInProse">Retrieve a coupon</span> operation.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': 'Bearer 76908ca8f6b4d6f82907c',
+  'Accept': 'application/json;v=0'
+}
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'GET', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/experimental/retail-discounts/coupons',
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var findCouponsByChainNameAndorLocation = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Finish sending the request
+findCouponsByChainNameAndorLocation.end();
+
+</pre></code></div>
+<div class="curlHolder"><code class="curl"><pre>-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: Bearer 76908ca8f6b4d6f82907c" -H "Accept: application/json;v=0" -X GET "https://api-sandbox.capitalone.com/experimental/retail-discounts/coupons?chainName=Pep%20Boys&amp;latitude=40.005411&amp;longitude=-75.180356&amp;city=Jim%20Thorpe&amp;stateCode=PA&amp;distance=0.02"
+
+--RESPONSE--
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 18
+Date: Fri, 22 Sep 2017 19:15:42 GMT
+
+{"coupons":[{}]}</pre></code></div>
+<div class="operation">
+<h3 class="operationName" id="_retrieve_a_coupon">Retrieve a coupon</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Retrieves information about a specific coupon.</p>
+</div>
+</div>
+<div class="operationContainer GET">
+<div class="endpoint">
+<span class="endpointVerb">GET</span>
+<span class="endpointUrl">/experimental/retail-discounts/coupons/{couponId}</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection pathParameters">
+<h5 class="syntaxSectionLabel">Path Parameters</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponId</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An identifier that uniquely identifies a coupon.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription"><p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription">
+<p>Specifies the MIME type that you’ll accept in the body of the response <em>and</em> declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+<code><pre>Accept: application/json;v=0</pre></code>
+</div>
+</div>
+
+
+</div>
+</div>
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. </p>
+<div class="toggle">
+
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">200</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Coupon look-up is successful.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">400</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Client error.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">404</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Invalid couponId path parameter value.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The API encountered an error while attempting to communicate with the back end.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+<code class="json"><pre>
+{
+  "couponId": "9535a6f86b35e36385c81",
+  "title": "Tires: Buy 3, get 1 free through 12/17",
+  "description": "Buy three tires and get the fourth tire free! Good through the end of 2017.",
+  "expirationDate": "2017-12-31",
+  "dealId": "61ec98a4a78b0358f0871",
+  "redemption": {
+    "couponCode": "febcd39aa2456b189d30f",
+    "couponImageUrl": "https://www.pepboys.com/popboyslogo.png"
+  },
+  "disclosures": [
+    {
+      "title": "Details and Exclusions",
+      "disclosureText": "Good through December 31, 2017. Cannot be combined with other offers or discounts."
+    }
+  ],
+  "callbacks": {
+    "couponPresentedUrl": "https://api.pepboys.com/couponPresented/pbc3456",
+    "couponClickedUrl": "https://api.pepboys.com/couponClicked/pbc3456"
+  },
+  "chainName": "Pep Boys",
+  "chainContact": {
+    "phoneNumber": "8007372697",
+    "webSiteUrl": "https://www.pepboys.com/",
+    "emailAddress": "moe@pepboys.com"
+  },
+  "statistics": {
+    "viewCount": 31,
+    "redemptionCount": 12,
+    "likeCount": 23,
+    "refusedCount": 1,
+    "totalReportedSpendAmount": 143.23
+  }
+}</pre></code><div class="syntaxSection bodyProperties">
+<h5 class="syntaxSectionLabel">Body Properties</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponId</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A token that uniquely identifies the coupon across all chains.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">title</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A customer-friendly name for the coupon.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">description</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A customer-friendly, plaintext description of the coupon.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">expirationDate</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The date the coupon expires, given in ISO 8601 format (<code>YYYY-MM-DD</code>).</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">dealId</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A token that identifies (to the coupon provider) the campaign or other higher-level category that the
+coupon is part of. The <span class="symbolInProse">couponId</span> value can be any plaintext string.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">redemption</span>
+<span class="elementDataType">object</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The <span class="symbolInProse">redemption</span> object contains information and tools that are used to redeem the coupon.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponCode</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A sequence of characters that the customer can enter in order to identify (and thus redeem) the coupon.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponImageUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The URL of an image that, when scanned, invokes an API that redeems the coupon.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponImageUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The URL of a customer-facing image that displays the chain’s logo, or
+that represents the deal that the coupon is part of
+(as examples).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+This property doesn’t really belong in the <span class="symbolInProse">redemption</span> object. It will be moved in a later release.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">disclosures</span>
+<span class="elementDataType">[object]</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An array of objects where each object names and describes a condition or exception that could affect the
+customer’s ability to redeem the coupon, and that must be
+made known to the customer prior to redemption.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">title</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">disclosureText</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The name and description of a coupon disclosure. Both properties must be human-readable, plaintext strings.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">callbacks</span>
+<span class="elementDataType">object</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The callback URLs identify the APIs that you invoke when the customer interacts with a coupon that you
+present in your app. The APIs…​</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Are invoked through <code>POST</code>.</p>
+</li>
+<li>
+<p>Accept no message body.</p>
+</li>
+<li>
+<p>Return 204 upon success (with no message body).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If an API returns an HTTP status other than 204, you should re-<code>POST</code> the message.</p>
+</div>
+<div class="paragraph">
+<p>The identity of the coupon, in the coupon provider’s native identification system, is expected to be
+"baked into" the URL. A typical arrangement is for the provider to accept the coupon identifier
+as a path or query parameter; for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>https://api.pepboys.com/couponClicked/pbc3456
+
+or
+
+https://api.pepboys.com/couponClicked?id=pbc3456</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that the coupon identifier (<code>pbc3456</code>) is the provider’s own ID — it <em>isn’t</em> the <span class="symbolInProse">couponId</span>
+that’s returned by this operation (for how could it be? You don’t know the <span class="symbolInProse">couponId</span> for a coupon
+until after this operation returns).</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+The coupon callback system isn’t currently implemented.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponPresentedUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponClickedUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>These two properties give the URLs of the APIs that you must invoke when your
+app presents the coupon to the customer, and when the customer attempts to redeem the coupon
+by clicking on it, respectively.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">chainName</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The name of the chain that has offered and will redeem the coupon. Chain names must be unique.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Currently, the operation that finds coupons based on a chain’s name uses a full string
+(but case-insensitive) search. Because of this, you should use a chain’s common name as opposed to
+its legal name. For example: "Pep Boys" and not "The Pep Boys - Manny, Moe &amp; Jack"
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">chainContact</span>
+<span class="elementDataType">object</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Customer support information for the chain.
+Keep in mind that this information is for the entire chain; it’s not for a specific storefront.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">phoneNumber</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s 10-digit phone number with no punctuation.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">webSiteUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s website as a fully-qualified URL.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">emailAddress</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s 10-digit corporate phone number; no punctuation.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">webSiteUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s website as a fully-qualified URL.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">statistics</span>
+<span class="elementDataType">object</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An object that contains accumulated statistics about the coupon.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">viewCount</span>
+<span class="elementDataType">integer</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The number of times the coupon has been viewed. Each customer (or, more accurately, each device) is counted only once.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">redemptionCount</span>
+<span class="elementDataType">integer</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Number of times the coupon has been redeemed.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">likeCount</span>
+<span class="elementDataType">integer</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The number of times the coupon has been liked (or otherwise favorited) through
+whatever mechanism the coupon provides to allow a customer to display their
+affection.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">refusedCount</span>
+<span class="elementDataType">integer</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The number of times a customer has reported that a redemption attempt has been refused.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">totalReportedSpendAmount</span>
+<span class="elementDataType">number</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The total amount of money, in dollars, for which the coupon has been redeemed.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">chainName</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The name of the chain that has offered and will redeem the coupon. Chain names must be unique.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Currently, the operation that finds coupons based on a chain’s name uses a full string
+(but case-insensitive) search. Because of this, you should use a chain’s common name as opposed to
+its legal name. For example: "Pep Boys" and not "The Pep Boys - Manny, Moe &amp; Jack"
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">chainContact</span>
+<span class="elementDataType">object</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Customer support information for the chain.
+Keep in mind that this information is for the entire chain; it’s not for a specific storefront.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">phoneNumber</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s 10-digit phone number with no punctuation.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">webSiteUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s website as a fully-qualified URL.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">emailAddress</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s 10-digit corporate phone number; no punctuation.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">webSiteUrl</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The chain’s website as a fully-qualified URL.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': 'Bearer 9ac02a5c73ba916adaf4d',
+  'Accept': 'application/json;v=0'
+}
+
+// URL encode the path parameter
+couponId = encodeURIComponent(/* Unencoded couponId value */)
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'GET', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/experimental/retail-discounts/coupons/' + couponId,
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var retrieveACoupon = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Finish sending the request
+retrieveACoupon.end();
+
+</pre></code></div>
+<div class="curlHolder"><code class="curl"><pre>NOTE: {couponId} must be URL encoded.
+
+-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: Bearer 9ac02a5c73ba916adaf4d" -H "Accept: application/json;v=0" -X GET "https://api-sandbox.capitalone.com/experimental/retail-discounts/coupons/{couponId}"
+
+--RESPONSE--
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 1206
+Date: Fri, 22 Sep 2017 19:15:42 GMT
+
+{"couponId":"9535a6f86b35e36385c81","title":"Tires: Buy 3, get 1 free through 12/17","description":"Buy three tires and get the fourth tire free! Good through the end of 2017.","expirationDate":"2017-12-31","dealId":"61ec98a4a78b0358f0871","redemption":{"couponCode":"febcd39aa2456b189d30f","couponImageUrl":"https://www.pepboys.com/coupons/pbc3546B_QRCode.png","couponImageUrl":"https://www.pepboys.com/popboyslogo.png"},"disclosures":[{"title":"Details and Exclusions","disclosureText":"Good through December 31, 2017. Cannot be combined with other offers or discounts."}],"callbacks":{"couponPresentedUrl":"https://api.pepboys.com/couponPresented/pbc3456","couponClickedUrl":"https://api.pepboys.com/couponClicked/pbc3456"},"chainName":"Pep Boys","chainContact":{"phoneNumber":"8007372697","webSiteUrl":"https://www.pepboys.com/","emailAddress":"moe@pepboys.com","webSiteUrl":"https://www.pepboys.com/"},"statistics":{"viewCount":31,"redemptionCount":12,"likeCount":23,"refusedCount":1,"totalReportedSpendAmount":143.23},"chainName":"Pep Boys","chainContact":{"phoneNumber":"8007372697","webSiteUrl":"https://www.pepboys.com/","emailAddress":"moe@pepboys.com","webSiteUrl":"https://www.pepboys.com/"}}</pre></code></div>
+<div class="operation">
+<h3 class="operationName" id="_provide_feedback_for_a_coupon">Provide Feedback for a Coupon</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Lets the user provide feedback for a coupon.</p>
+</div>
+</div>
+<div class="operationContainer POST">
+<div class="endpoint">
+<span class="endpointVerb">POST</span>
+<span class="endpointUrl">/experimental/retail-discounts/coupons/{couponId}/feedback</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection pathParameters">
+<h5 class="syntaxSectionLabel">Path Parameters</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponId</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An identifier that uniquely identifies a coupon.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription"><p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Content-Type</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription">
+<p>Specifies the MIME type of the data in the request body. The setting should be exactly this:</p>
+<code><pre>Content-Type: application/json</pre></code>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription">
+<p>Specifies the MIME type that you’ll accept in the body of the response <em>and</em> declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+<code><pre>Accept: application/json;v=0</pre></code>
+</div>
+</div>
+
+
+
+</div>
+</div>
+<code class="json"><pre>
+{
+  "spendAmount": 0.0,
+  "wasLiked": false,
+  "wasRedeemed": false,
+  "wasRefused": false,
+  "comments": "string"
+}</pre></code><div class="syntaxSection bodyProperties">
+<h5 class="syntaxSectionLabel">Body Properties</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">spendAmount</span>
+<span class="elementDataType">number</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The amount (as a floating point number; dollar currency) spend by the customer when the coupon was redeemed.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">wasLiked</span>
+<span class="elementDataType">boolean</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Did the customer 'like' the coupon?</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">wasRedeemed</span>
+<span class="elementDataType">boolean</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Was the customer able to redeem the coupon?</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">wasRefused</span>
+<span class="elementDataType">boolean</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Was the coupon refused?</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">comments</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Additional feedback comments</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. </p>
+<div class="toggle">
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">204</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The feedback was successfully recorded.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">404</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Invalid couponId path parameter value.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The API encountered an error while attempting to communicate with the back end.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': 'Bearer 9dd0449ad5fd3c3fbbe09',
+  'Content-Type': 'application/json',
+  'Accept': 'application/json;v=0'
+}
+
+// URL encode the path parameter
+couponId = encodeURIComponent(/* Unencoded couponId value */)
+
+// Write the request body
+requestBody = JSON.stringify({
+  "spendAmount": 0.0,
+  "wasLiked": false,
+  "wasRedeemed": false,
+  "wasRefused": false,
+  "comments": "string"
+})
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'POST', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/experimental/retail-discounts/coupons/' + couponId + '/feedback',
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var provideFeedbackForACoupon = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Write the request body into the request message
+provideFeedbackForACoupon.write(requestBody);
+
+// Finish sending the request
+provideFeedbackForACoupon.end();
+
+</pre></code></div>
+<div class="curlHolder"><code class="curl"><pre>NOTE: {couponId} must be URL encoded.
+
+-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: Bearer 9dd0449ad5fd3c3fbbe09" -H "Content-Type: application/json" -H "Accept: application/json;v=0" -d '{"spendAmount":0.0,"wasLiked":false,"wasRedeemed":false,"wasRefused":false,"comments":"string"}' -X POST "https://api-sandbox.capitalone.com/experimental/retail-discounts/coupons/{couponId}/feedback"
+
+--RESPONSE--
+HTTP/1.1 204 No Content
+Content-Type: application/json
+Content-Length: 0
+Date: Fri, 22 Sep 2017 19:15:42 GMT
+
+</pre></code></div>
+<div class="operation">
+<h3 class="operationName" id="_delete_a_coupon">Delete a coupon</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Deletes a coupon.</p>
+</div>
+</div>
+<div class="operationContainer DELETE">
+<div class="endpoint">
+<span class="endpointVerb">DELETE</span>
+<span class="endpointUrl">/experimental/retail-discounts/coupons/{couponId}</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection pathParameters">
+<h5 class="syntaxSectionLabel">Path Parameters</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">couponId</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An identifier that uniquely identifies a coupon.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription"><p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span><span class="elementDataType">string</span>
+</div>
+<div class="elementDescription">
+<p>Specifies the MIME type that you’ll accept in the body of the response <em>and</em> declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+<code><pre>Accept: application/json;v=0</pre></code>
+</div>
+</div>
+
+
+</div>
+</div>
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. </p>
+<div class="toggle">
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">204</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The coupon was successfully deleted.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">404</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Invalid couponId path parameter value.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Server error.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': 'Bearer 3bbd0d9b614db32c5d682',
+  'Accept': 'application/json;v=0'
+}
+
+// URL encode the path parameter
+couponId = encodeURIComponent(/* Unencoded couponId value */)
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'DELETE', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/experimental/retail-discounts/coupons/' + couponId,
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var deleteACoupon = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Finish sending the request
+deleteACoupon.end();
+
+</pre></code></div>
+<div class="curlHolder"><code class="curl"><pre>NOTE: {couponId} must be URL encoded.
+
+-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: Bearer 3bbd0d9b614db32c5d682" -H "Accept: application/json;v=0" -X DELETE "https://api-sandbox.capitalone.com/experimental/retail-discounts/coupons/{couponId}"
+
+--RESPONSE--
+HTTP/1.1 204 No Content
+Content-Type: application/json
+Content-Length: 0
+Date: Fri, 22 Sep 2017 19:15:42 GMT
+
+</pre></code></div>
+</div>
+</div>
