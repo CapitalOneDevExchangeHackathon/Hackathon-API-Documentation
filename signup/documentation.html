@@ -74,7 +74,7 @@
 <p>Your <span class="symbolInProse">Client ID</span>, <span class="symbolInProse">Client Secret</span>, and <span class="symbolInProse">Redirect URI</span>, which are assigned to your co-dev app. You can find them on the <em>Co-Dev</em> tab of your <em>App Details</em> page.</p>
 <div class="imageblock">
 <div class="content">
-<img src="{base.path.static.content}/DevPortal/assets/images/api/identity/client_credentials.png" alt="OAuth information on the app details page">
+<img src="/Private-API-Documentation/signup/images/client_credentials.png" alt="OAuth information on the app details page">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -156,7 +156,7 @@ You’ll need some help from us to get set up to respond to the two-factor authe
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="{base.path.static.content}/DevPortal/assets/images/images/sign_up_consent.png" alt="OAuth consent for Sign Up with Capital One">
+<img src="/Private-API-Documentation/signup/images/sign_up_consent.png" alt="OAuth consent for Sign Up with Capital One">
 </div>
 </div>
 <div class="paragraph">
@@ -768,7 +768,7 @@ Be careful about using a valid username and an invalid password; after five unsu
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="{base.path.static.content}/DevPortal/assets/images/api/identity/sign_up_button.png" alt="Sign Up with Capital One button">
+<img src="/Private-API-Documentation/signup/images/sign_up_button.png" alt="Sign Up with Capital One button">
 </div>
 </div>
 <div class="paragraph">
@@ -805,8 +805,8 @@ var queryParams = {
 
 // Assemble the calling options for the request message
 var options = {
-  method: 'GET', 
-  hostname: 'api-sandbox.capitalone.com', 
+  method: 'GET',
+  hostname: 'api-sandbox.capitalone.com',
   port: 443, // https
   path: '/identity/signup/tools/web-button' + queryString.stringify(queryParams),
   headers: requestHeaders
@@ -1306,8 +1306,8 @@ requestBody = " client_id=bfe8e2e80cf4428cb04d258c2ff988a1 -d client_secret=cf44
 
 // Assemble the calling options for the request message
 var options = {
-  method: 'POST', 
-  hostname: 'api-sandbox.capitalone.com', 
+  method: 'POST',
+  hostname: 'api-sandbox.capitalone.com',
   port: 443, // https
   path: '/oauth2/token',
   headers: requestHeaders
@@ -1639,8 +1639,8 @@ var requestHeaders = {
 
 // Assemble the calling options for the request message
 var options = {
-  method: 'GET', 
-  hostname: 'api-sandbox.capitalone.com', 
+  method: 'GET',
+  hostname: 'api-sandbox.capitalone.com',
   port: 443, // https
   path: '/oauth2/userinfo',
   headers: requestHeaders
