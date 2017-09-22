@@ -1,4 +1,4 @@
-# Identity API Documentation
+# Capital One Private API Documentation
 
 ### Viewing the Documentation
 
