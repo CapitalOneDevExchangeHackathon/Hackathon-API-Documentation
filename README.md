@@ -2,10 +2,10 @@
 
 ### Viewing the Documentation
 
-- [Sign Up](https://capitalonedevexchangehackathon.github.io/Identity-API-Documentation/signup/)
+- [Sign Up](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/signup/)
 
-- [Sign In](https://capitalonedevexchangehackathon.github.io/Identity-API-Documentation/signin/)
+- [Sign In](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/signin/)
 
-- [Verify](https://capitalonedevexchangehackathon.github.io/Identity-API-Documentation/verify/)
+- [Verify](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/verify/)
 
-- [Merchant Insights](https://capitalonedevexchangehackathon.github.io/Identity-API-Documentation/merchant-insights/)
+- [Merchant Insights](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/merchant-insights/)
