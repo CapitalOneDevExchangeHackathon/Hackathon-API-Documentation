@@ -61,7 +61,7 @@
 <p>Your <span class="symbolInProse">Client ID</span>, <span class="symbolInProse">Client Secret</span>, and <span class="symbolInProse">Redirect URI</span>, which are assigned to your co-dev app. You can find them on the <em>Co-Dev</em> tab of your <em>App Details</em> page.</p>
 <div class="imageblock">
 <div class="content">
-<img src="{base.path.static.content}/DevPortal/assets/images/api/identity/client_credentials.png" alt="OAuth information on the app details page">
+<img src="/Private-API-Documentation/signin/images/client_credentials.png" alt="OAuth information on the app details page">
 </div>
 </div>
 <div class="admonitionblock note">
@@ -142,7 +142,7 @@ You’ll need some help from us to get set up to respond to the two-factor authe
 <p>Once login is complete, you must approve the sign in request:</p>
 </div>
 <div class="paragraph">
-<p><span class="image"><img src="{base.path.static.content}/DevPortal/assets/images/api/identity/sign_in_consent.png" alt="OAuth consent for Sign In with Capital One"></span></p>
+<p><span class="image"><img src="/Private-API-Documentation/signin/images/sign_in_consent.png" alt="OAuth consent for Sign In with Capital One"></span></p>
 </div>
 <div class="paragraph">
 <p>If consent is provided, an <span class="symbolInProse">authorization code</span> is appended to your <span class="symbolInProse">Redirect URI</span>, together with the state parameter value if you included one, like this:</p>
@@ -754,7 +754,7 @@ Be careful about using a valid username and an invalid password; after five unsu
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="{base.path.static.content}/DevPortal/assets/images/api/identity/sign_in_button.png" alt="Sign In with Capital One button">
+<img src="/Private-API-Documentation/signin/images/sign_in_button.png" alt="Sign In with Capital One button">
 </div>
 </div>
 <div class="paragraph">
@@ -791,8 +791,8 @@ var queryParams = {
 
 // Assemble the calling options for the request message
 var options = {
-  method: 'GET', 
-  hostname: 'api-sandbox.capitalone.com', 
+  method: 'GET',
+  hostname: 'api-sandbox.capitalone.com',
   port: 443, // https
   path: '/identity/signin/tools/web-button' + queryString.stringify(queryParams),
   headers: requestHeaders
@@ -1295,8 +1295,8 @@ requestBody = " client_id=bfe8e2e80cf4428cb04d258c2ff988a1 -d client_secret=cf44
 
 // Assemble the calling options for the request message
 var options = {
-  method: 'POST', 
-  hostname: 'api-sandbox.capitalone.com', 
+  method: 'POST',
+  hostname: 'api-sandbox.capitalone.com',
   port: 443, // https
   path: '/oauth2/token',
   headers: requestHeaders
