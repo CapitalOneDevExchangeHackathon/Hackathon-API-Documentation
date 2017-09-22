@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Merchant Insights | Documentation</title>
+    <link rel="icon" type="image/png" href="../assets/images/favicon-32x32.png" sizes="32x32">
+    <link rel="stylesheet" href="../assets/css/vendor.min.css">
+    <link rel="stylesheet" href="../assets/css/app.min.css">
+    <script src="../assets/scripts/jquery-2.2.4.min.js"></script>
+</head>
+<body>
+
+    <div id="pageHeader"></div>
+
+    <script>
+        $("#pageHeader").load("../common/header.html");
+    </script>
+
+    <ui-view>
+        <section id="product-documentation">
+
+            <div class="hero-header" style="background-image:url(../assets/images/experimental-banner.svg)">
+                <div class="container">
+                    <div class="row">
+                        <h1 class="col-lg-12" id="page-heading" tabindex="-1">
+                            Merchant Insights
+                        </h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-nav">
+                <div class="container">
+                    <ul>
+                        <li><a href="#feedback">Overview</a></li>
+                        <li><a href="#feedback">Documentation</a></li>
+                        <li><a href="#feedback">Feedback</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <div id="thedocs">
+
+                    <div class="col-md-2 side-nav-container hidden-sm hidden-xs" id="cms-documentation-nav">
+                        <div sticky-toc="" stickoffset="0" highlightoffset="100">
+                            <ul class="nav">
+                                <li><a href="#_overview">Overview</a></li>
+                                <li><a href="#_servers">Servers</a></li>
+                                <li><a href="#_versioning">Versioning</a></li>
+                                <li><a href="#_authorization">Authorization</a></li>
+                                <li><a href="#_gateway_errors">Gateway Errors</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-10 col-sm-12" id="cms-documentation-container">
+
+                        <div class="lang-selector" id="lang-selector">
+                            <button id="language-curl-button" class="lang-button active">curl</button>
+                            <button id="language-node-button" class="lang-button">node</button>
+                            <button id="language-json-button" class="lang-button">json</button>
+                        </div>
+
+                        <div id="cms-documentation-markup"></div>
+
+                        <div class="code-pane"></div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </section>
+
+    </ui-view>
+
+
+    <div id="pageFooter"></div>
+
+    <script>
+        $("#pageFooter").load("../common/footer.html");
+    </script>
+
+
+    <script src="../assets/scripts/main.js"></script>
+    <script>
+
+        $(function(){
+            $("#cms-documentation-markup").load("documentation.html", function(){
+                //Set curl as default
+                $("#language-curl-button").click();
+
+                //Remove devexchange portal path from images
+                $("img").each(function() {
+                    $(this).attr('src',$(this).attr('src').replace("{base.path.static.content}/DevPortal/assets/",""));
+                });
+
+                //Add inline style to all <code> elements
+                $("code").each(function() {
+                    if( !($(this).hasClass("curl") || $(this).hasClass("node") || $(this).hasClass("json"))) {
+                        $(this).addClass("inline");
+                    }
+                });
+
+
+
+            });
+
+        });
+    </script>
+    <script src="../assets/scripts/bootstrap.min.js"></script>
+
+</body>
+</html>

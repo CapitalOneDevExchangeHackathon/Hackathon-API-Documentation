@@ -1,0 +1,1778 @@
+
+<div class="prosaicDescription">
+<div class="sect1">
+<h2 id="_overview">Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Merchant data is highly valuable to your users, but if the data is to be relied upon, its quality is critically important. How can you get high-quality data to power the experiences your customers demand? Enter the Capital One <span class="symbolInProse">Merchant Insights</span> API. With the <span class="symbolInProse">Merchant Insights</span> API developers have the ability to power a variety of applications - including personalization, analytics, and targeting - with merchant transaction data. Provide a few details about a merchant; if we find a match, we’ll provide useful merchant metrics — including business hours, popular hours, and spending information — modeled on regularly-refreshed Capital One customer transactions.</p>
+</div>
+<div class="paragraph">
+<p>Suppose you are writing an app that would help a visitor find restaurants nearby. Once you have a list of merchants, you can use our API to get additional details about those merchants.</p>
+</div>
+<div class="paragraph">
+<p>The Capital One Merchant Insights data is a powerful resource you can use to build a wide variety of experiences your users will come to rely on.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="resource">
+<h2 class="resourceName" id="_merchant_insights">Merchant Insights</h2>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>With the <span class="symbolInProse">Merchant Insights</span> resource, you can retrieve data that will help your customers learn more about businesses that meet their needs.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="symbolInProse">Retrieve merchant data</span> - begin by retrieving data for a merchant you identify by <span class="symbolInProse">merchantName</span> and <span class="symbolInProse">streetAddress</span>, and some combination of <span class="symbolInProse">city</span>, <span class="symbolInProse">stateCode</span>, and <span class="symbolInProse">postalCode</span>; the operation returns detailed information about the merchant that best matches the values you provide. Then:</p>
+</li>
+<li>
+<p><span class="symbolInProse">Refresh merchant details</span> - using the <span class="symbolInProse">merchantId</span> from a previous <span class="symbolInProse">Retrieve merchant data</span> search, update the merchant data to be sure you’re giving your customers the latest and best information.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="operation">
+<h3 class="operationName" id="_retrieve_merchant_data">Retrieve merchant data</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Allows you to retrieve data about a merchant you identify by name and address. This operation uses the merchant information you provide to locate the closest match in our aggregate transaction data. The returned <span class="symbolInProse">matchScore</span> tells you how close we think we came to identifying the right merchant. Currently, only one merchant is returned per search.</p>
+</div>
+<div class="paragraph">
+<p>You need to provide enough information for our API to match your merchant; you’ll need the  <span class="symbolInProse">merchantName</span> and <span class="symbolInProse">streetAddress</span>, plus one of the following combinations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="symbolInProse">city</span>, <span class="symbolInProse">stateCode</span>, and <span class="symbolInProse">postalCode</span> or</p>
+</li>
+<li>
+<p><span class="symbolInProse">city</span> and <span class="symbolInProse">stateCode</span> or</p>
+</li>
+<li>
+<p><span class="symbolInProse">city</span> and <span class="symbolInProse">postalCode</span> or</p>
+</li>
+<li>
+<p><span class="symbolInProse">postalCode</span>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The search is case-insensitive, so '1717 Harrison St' and '1717 HARRISON St' will return the same data.</p>
+</div>
+<div class="paragraph">
+<p>Merchant response data includes <span class="symbolInProse">merchantName</span>, <span class="symbolInProse">city</span>, <span class="symbolInProse">stateCode</span>, and <span class="symbolInProse">postalCode</span>, as well as the merchant’s hours of operation, days and times when the merchant is most likely to be busy, and how much their customers are typically spending.</p>
+</div>
+<div class="paragraph">
+<p>The response also includes a <span class="symbolInProse">merchantId</span> that uniquely identifies the business; you’ll want to store this value for use with the <span class="symbolInProse">Refresh merchant details</span> operation. Since merchant pricing and other data is constantly updated, these details shouldn’t be cached.</p>
+</div>
+</div>
+<div class="operationContainer GET">
+<div class="endpoint">
+<span class="endpointVerb">GET</span>
+<span class="endpointUrl">/merchant-insights/merchants</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Specifies the MIME type that you’ll accept in the body of the response and declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Accept: application/json;v=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more information about versioning, although there’s not much more to say, see <a href="#_versioning">Versioning</a>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection queryParameters">
+<h5 class="syntaxSectionLabel">Query Parameters</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantName</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A <span class="symbolInProse">merchantName</span> represents the name of the brick and mortar business whose data you wish to obtain.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">streetAddress</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The physical address of the merchant whose data you want to obtain.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">city</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The city in which the merchant is located.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">stateCode</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The state in which the merchant is located. Valid values for <span class="symbolInProse">stateCode</span> include the standard two-letter abbreviations for the 50 states plus the following:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 33.3333%;">
+<col style="width: 16.6666%;">
+<col style="width: 33.3335%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">State Code</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">State Code</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">American Samoa</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Northern Marianas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DC</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">District of Columbia</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Puerto Rico</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Micronesia</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PW</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Palau</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Guam</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Virgin Islands</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MH</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Marshall Islands</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">postalCode</span>
+<span class="elementDataType">string</span>
+
+<span class="elementDefaultValue defaultValueNone"></span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>You can provide the five-digit or 5+4 <span class="symbolInProse">postalCode</span>, but the returned data will only include the 5-digit <span class="symbolInProse">postalCode</span>.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. See <a href="/platform-documentation/errors">Errors</a> for details.</p>
+<div class="toggle">
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">200</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The best match result was successfully retrieved. </p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">400</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The request could not be processed due to an error in the request data provided. </p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The request could not be processed due to server error. </p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+<div class="syntaxSection errorCodes">
+<h5 class="syntaxSectionLabel">Error Codes</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">207101</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The value of <span class="symbolInProse">merchantName</span> and/or <span class="symbolInProse">streetAddress</span> is missing. These are both required fields.</p>
+</div>
+<div class="paragraph">
+<p>Accompanies an HTTP 400 status code. Provide <span class="symbolInProse">merchantName</span> and <span class="symbolInProse">streetAddress</span> and try again.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">207102</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The <span class="symbolInProse">merchantName</span> and/or <span class="symbolInProse">streetAddress</span> was provided as something other than a string.</p>
+</div>
+<div class="paragraph">
+<p>Accompanies an HTTP 400 status code.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<code class="json"><pre>
+{
+  "merchantInsights": [
+    {
+      "merchantId": "1011373188",
+      "matchScore": 1.0,
+      "merchantName": "Takeing Thai Cuisine",
+      "city": "Fair Oaks",
+      "stateCode": "CA",
+      "postalCode": "95628",
+      "categoryName": "Dining and Entertainment",
+      "merchantPriceBin": {
+        "currencyCode": "USD",
+        "categoryPriceBins": [
+          {
+            "binNumber": 1,
+            "lowerLimit": 0.0,
+            "upperLimit": 9.99
+          }
+        ],
+        "merchantMedianPriceBinNumber": 4
+      },
+      "openHours": [
+        {
+          "dayOfWeek": "Monday",
+          "startTime": "11:00",
+          "endTime": "22:30"
+        }
+      ],
+      "popularHours": [
+        {
+          "dayOfWeek": "Sunday",
+          "startHour": "18:00",
+          "endHour": "19:00",
+          "popularity": 0.67
+        }
+      ],
+      "mostRecentTransactionMonth": "2017-08"
+    }
+  ]
+}</pre></code><div class="syntaxSection bodyProperties">
+<h5 class="syntaxSectionLabel">Body Properties</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantInsights</span>
+<span class="elementDataType">[object]</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An array containing merchants that best match the provided request parameters, along with detailed data for each; currently returns the single best match.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantId</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Unique identifier for the merchant in the Capital One database. You can cache the <span class="symbolInProse">merchantId</span> for use in the <span class="symbolInProse">Refresh merchant details</span> operation to update merchant details.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">matchScore</span>
+<span class="elementDataType">number</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Provides a measure of the degree of confidence that the merchant matches the identifying information provided in the request. Values range from 0.00 to 1.00, with a value of 1.00 indicating the highest level of confidence. </p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantName</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The name of the brick and mortar merchant which most closely matches the <span class="symbolInProse">merchantName</span> you provided. The match may not be exact.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">city</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The city in which the merchant is located.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">stateCode</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The state in which the merchant is located.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">postalCode</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Provides the <span class="symbolInProse">postalCode</span> value of this merchant’s address. <span class="symbolInProse">postalCode</span> always returns a five-digit value even if a 5+4 value was provided in the request.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">categoryName</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Industry category of the merchant, returned from the following list of possible values: </p>
+</div>
+</div>
+<div class="elementDescription">
+<div class="ulist">
+<ul>
+<li>
+<p>Automotive Services</p>
+</li>
+<li>
+<p>Education and Government Services</p>
+</li>
+<li>
+<p>Healthcare Services</p>
+</li>
+<li>
+<p>Parks and Landmarks</p>
+</li>
+<li>
+<p>Grocery and Retail</p>
+</li>
+<li>
+<p>Other Services</p>
+</li>
+<li>
+<p>Dining and Entertainment</p>
+</li>
+<li>
+<p>Sports and Fitness</p>
+</li>
+<li>
+<p>Transportation Services</p>
+</li>
+<li>
+<p>Tourism and Lodging</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantPriceBin</span>
+<span class="elementDataType">object</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Each merchant is associated with a defined category, and for each category of merchants a set of four price bins is calculated based on median spending at all merchants in that category. Each price bin is defined with a range of values, and bins are ranked from 1 (the lowest range of median values) to 4 (the highest range).</p>
+</div>
+<div class="paragraph">
+<p>The full set of <span class="symbolInProse">categoryPriceBins</span> provides the range of spending values across the entire category; the <span class="symbolInProse">merchantMedianPriceBinNumber</span> indicates which of the <span class="symbolInProse">categoryPriceBins</span> a particular merchant’s spending falls in.</p>
+</div>
+<div class="paragraph">
+<p>For example, if the price bins for the Dining and Entertainment category are as follows:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">binNumber</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">lowerLimit</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">upperLimit</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">9.99</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10.00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">19.99</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20.00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">29.99</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">30.00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">999999.99</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>a <span class="symbolInProse">merchantMedianPriceBinNumber</span> of 3 indicates that a particular merchant’s median spending amounts fall in the $20.00-$29.99 range.</p>
+</div>
+<div class="paragraph">
+<p>Note that these spending values reflect the amounts of entire transactions, not the prices of individual items. If no bins are returned for a category, not enough transactional data is available yet.
+</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">currencyCode</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Three-character currency code for the prices represented in the price bins. Currently, only USD is supported. </p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">categoryPriceBins</span>
+<span class="elementDataType">[object]</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An array containing four price bins defined for the category.
+</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">binNumber</span>
+<span class="elementDataType">integer</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Number that orders the price bins from lowest median spending range to highest. The lowest range is assigned to bin 1, the next range to bin 2, and so on.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">lowerLimit</span>
+<span class="elementDataType">number</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The lowest median transaction total in this defined price bin.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">upperLimit</span>
+<span class="elementDataType">number</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The highest median transaction total in this defined price bin.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantMedianPriceBinNumber</span>
+<span class="elementDataType">integer</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The <span class="symbolInProse">merchantMedianPriceBinNumber</span> indicates which of the four price bins defined for the category represents the range of median transaction amounts for this merchant. Using the <span class="symbolInProse">categoryPriceBins</span> values shown above, a <span class="symbolInProse">merchantMedianPriceBinNumber</span> of 2 would indicate that this merchant’s median transaction amount falls into the $10.00 to $19.99 range.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">openHours</span>
+<span class="elementDataType">[object]</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Returns an array of business hours, including day of week and open and closing times. For example:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">dayOfWeek</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">startTime</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">endTime</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:30</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tuesday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Wednesday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Thursday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Friday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">23:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Saturday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">23:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:30</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p></p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">dayOfWeek</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Day of the week, Monday through Sunday.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">startTime</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Business opening time for the given day of the week, formatted as hh:mm in 24-hour format.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">endTime</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Business closing time for the given day of the week, formatted as hh:mm in 24-hour format.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">popularHours</span>
+<span class="elementDataType">[object]</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Breaks down the merchant’s open hours in one-hour increments, and provides a measure of each hour’s popularity. The array includes an entry for each one-hour increment the merchant is open, for all open days. Higher <span class="symbolInProse">popularity</span> scores indicate the busier hours on a given day. An empty array will be returned if there isn’t enough data to model popularity.</p>
+</div>
+<div class="paragraph">
+<p>A sampling of a full data set is shown below.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 33.3335%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">dayOfWeek</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">startHour</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">endHour</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">popularity</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.17</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.67</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.50</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.27</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.17</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.17</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">19:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.67</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">19:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.17</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">21:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.50</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">21:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.33</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.33</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.07</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">…​</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p></p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">dayOfWeek</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Day of the week, Monday through Sunday.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">startHour</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Start time for a specific one-hour increment, formatted as hh:mm as 24-hour time.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">endHour</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>End time for a specific one-hour increment, formatted in hh:mm as 24-hour time.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">popularity</span>
+<span class="elementDataType">number</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Popularity score for the specific hour relative to the most popular hour in the day. Ranges from 0 to 1.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">mostRecentTransactionMonth</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Date of the most recent authorized transaction, formatted as YYYY-MM. This value can indicate whether or not a merchant is still in business, or whether or not they still accept credit cards.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': 'Bearer 84b2d1f04c524be32630921e989e1954c',
+  'Accept': 'application/json;v=1'
+}
+
+// Assemble the query parameters
+var queryParams = {
+  'merchantName': 'Takeing%20Thai%20Cuisine',
+  'streetAddress': '4400%20San%20Juan%20Ave.'
+}
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'GET', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/merchant-insights/merchants' + queryString.stringify(queryParams),
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var retrieveMerchantData = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Finish sending the request
+retrieveMerchantData.end();
+
+</pre></code></div>
+<div class="curlHolder"><code class="curl"><pre>-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: Bearer 84b2d1f04c524be32630921e989e1954c" -H "Accept: application/json;v=1" -X GET "https://api-sandbox.capitalone.com/merchant-insights/merchants?merchantName=Takeing%20Thai%20Cuisine&amp;streetAddress=4400%20San%20Juan%20Ave.&amp;city=Fair%20Oaks&amp;stateCode=CA&amp;postalCode=95628"
+
+--RESPONSE--
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 564
+Date: Fri, 22 Sep 2017 12:37:07 GMT
+
+{"merchantInsights":[{"merchantId":"1011373188","matchScore":1.0,"merchantName":"Takeing Thai Cuisine","city":"Fair Oaks","stateCode":"CA","postalCode":"95628","categoryName":"Dining and Entertainment","merchantPriceBin":{"currencyCode":"USD","categoryPriceBins":[{"binNumber":1,"lowerLimit":0.0,"upperLimit":9.99}],"merchantMedianPriceBinNumber":4},"openHours":[{"dayOfWeek":"Monday","startTime":"11:00","endTime":"22:30"}],"popularHours":[{"dayOfWeek":"Sunday","startHour":"18:00","endHour":"19:00","popularity":0.67}],"mostRecentTransactionMonth":"2017-08"}]}</pre></code></div>
+<div class="operation">
+<h3 class="operationName" id="_refresh_merchant_details">Refresh merchant details</h3>
+<div class="toggle">
+<div class="prosaicDescription">
+<div class="paragraph">
+<p>Since the merchant data is aggregated from all Capital One card transactions and will therefore change (and improve) over time, it should never be cached; instead, you should capture all the <span class="symbolInProse">merchantId</span> values returned by your calls to <span class="symbolInProse">Retrieve merchant data</span>, and refresh each merchant’s data explicitly using this operation. <span class="symbolInProse">Refresh merchant details</span> returns basically the same data set as <span class="symbolInProse">Retrieve merchant data</span>, absent one or two fields that aren’t relevant in this context (such as <span class="symbolInProse">matchScore</span>).
+</p>
+</div>
+</div>
+<div class="operationContainer GET">
+<div class="endpoint">
+<span class="endpointVerb">GET</span>
+<span class="endpointUrl">/merchant-insights/merchants/{merchantId}</span>
+</div>
+
+<div class="httpRequestResponse request">
+<h4 class="httpRequestResponseLabel">Request</h4>
+<div class="toggle">
+<div class="syntaxSection headers">
+<h5 class="syntaxSectionLabel">Headers</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Authorization</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The Bearer token that authenticates your app with Capital One. Instructions for constructing the token are given in <a href="#_authorization">Authorization</a>.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">Accept</span><span class="requiredMark">*</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Specifies the MIME type that you’ll accept in the body of the response and declares the version of the endpoint that you’re invoking. The setting should be exactly this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Accept: application/json;v=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more information about versioning, although there’s not much more to say, see <a href="#_versioning">Versioning</a>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="syntaxSection pathParameters">
+<h5 class="syntaxSectionLabel">Path Parameters</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantId</span>
+<span class="elementDataType">string</span>
+
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Unique identifier for a brick and mortar business in the Capital One database.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+<div class="httpRequestResponse response">
+<h4 class="httpRequestResponseLabel">Response</h4>
+<div class="toggle">
+<div class="syntaxSection httpStates">
+<h5 class="syntaxSectionLabel">HTTP Status Codes</h5>
+<p>If the call returns a <span class="symbolInProse">4xx</span> or <span class="symbolInProse">5xx</span> HTTP status, the response body will contain properties that provide more information about the error. See <a href="/platform-documentation/errors">Errors</a> for details.</p>
+<div class="toggle">
+
+
+
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">200</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The requested merchant was retrieved successfully.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">404</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The requested merchant could not be found. </p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">429</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The request has been rejected because of rate limiting -- you've sent too many requests in a given amount of time.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">500</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The request could not be processed due to server error. </p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">502</span></div>
+<div class="elementDescription"><div class="paragraph"><p>Internal connection failure.</p></div></div>
+</div>
+<div class="element">
+<div class="elementSpec"><span class="elementName">503</span></div>
+<div class="elementDescription"><div class="paragraph"><p>The server is unavailable due to heavy traffic or maintenance.</p></div></div>
+</div>
+</div>
+</div>
+<div class="syntaxSection errorCodes">
+<h5 class="syntaxSectionLabel">Error Codes</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">207201</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>There is no merchant found for the provided <span class="symbolInProse">merchantId</span>.</p>
+</div>
+<div class="paragraph">
+<p>Accompanies an HTTP 404 status code. A <span class="symbolInProse">merchantId</span> can fall out of the data set if there are insufficient transactions across a six-month period.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<code class="json"><pre>
+{
+  "merchantId": "1011373188",
+  "merchantName": "Takeing Thai Cuisine",
+  "city": "Fair Oaks",
+  "stateCode": "CA",
+  "postalCode": "95628",
+  "categoryName": "Dining and Entertainment",
+  "merchantPriceBin": {
+    "currencyCode": "string",
+    "categoryPriceBins": [
+      {
+        "binNumber": 1,
+        "lowerLimit": 0.0,
+        "upperLimit": 9.99
+      }
+    ],
+    "merchantMedianPriceBinNumber": 4
+  },
+  "openHours": [
+    {
+      "dayOfWeek": "Monday",
+      "startTime": "11:00",
+      "endTime": "22:30 -++ TDA edited ++-"
+    }
+  ],
+  "popularHours": [
+    {
+      "dayOfWeek": "Sunday",
+      "startHour": "18:00",
+      "endHour": "19:00",
+      "popularity": 0.67
+    }
+  ],
+  "mostRecentTransactionMonth": "2017-08"
+}</pre></code><div class="syntaxSection bodyProperties">
+<h5 class="syntaxSectionLabel">Body Properties</h5>
+<div class="toggle">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantId</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Unique identifier for a merchant in the Capital One database. </p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantName</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>A <span class="symbolInProse">merchantName</span> represents name of the brick and mortar business whose data you wish to obtain.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">city</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The city in which the merchant is located.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">stateCode</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The state in which the merchant is located.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">postalCode</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Provides the <span class="symbolInProse">postalCode</span> value of this merchant’s address. <span class="symbolInProse">postalCode</span> always returns a five-digit value even if a 5+4 value was provided in the request.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">categoryName</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Industry category of the merchant, returned from the following list of possible values:
+</p>
+</div>
+</div>
+<div class="elementDescription">
+<div class="ulist">
+<ul>
+<li>
+<p>Automotive Services</p>
+</li>
+<li>
+<p>Education and Government Services</p>
+</li>
+<li>
+<p>Healthcare Services</p>
+</li>
+<li>
+<p>Parks and Landmarks</p>
+</li>
+<li>
+<p>Grocery and Retail</p>
+</li>
+<li>
+<p>Other Services</p>
+</li>
+<li>
+<p>Dining and Entertainment</p>
+</li>
+<li>
+<p>Sports and Fitness</p>
+</li>
+<li>
+<p>Transportation Services</p>
+</li>
+<li>
+<p>Tourism and Lodging</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantPriceBin</span>
+<span class="elementDataType">object</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Each merchant is associated with a defined category, and for each category of merchants a set of four price bins in calculated based on median spending at all merchants in that category. Each price bin is defined with a range of values, and bins are ranked from 1 (the lowest range of median values) to 4 (the highest range).</p>
+</div>
+<div class="paragraph">
+<p>The full set of <span class="symbolInProse">categoryPriceBins</span> provides the range of spending values across the entire category; the <span class="symbolInProse">merchantMedianPriceBinNumber</span> indicates which of the <span class="symbolInProse">categoryPriceBins</span> a particular merchant’s spending falls in.</p>
+</div>
+<div class="paragraph">
+<p>For example, if the price bins for the Dining and Entertainment category are as follows:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">binNumber</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">lowerLimit</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">upperLimit</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">9.99</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10.00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">19.99</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20.00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">29.99</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">30.00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">999999.99</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>a <span class="symbolInProse">merchantMedianPriceBinNumber</span> of 3 indicates that a particular merchant’s median spending amounts fall in the $20.00-$29.99 range.</p>
+</div>
+<div class="paragraph">
+<p>Note that these spending values reflect the amounts of entire transactions, not the prices of individual items. If no bins are returned for a category, not enough transactional data is available yet.</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">currencyCode</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Three-character currency code for the prices represented in the price bins. Currently, only USD is supported. </p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">categoryPriceBins</span>
+<span class="elementDataType">[object]</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>An array containing four price bins defined for this category.
+</p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">binNumber</span>
+<span class="elementDataType">integer</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Number that orders the price bins from lowest median spending range to highest. The lowest range is assigned to bin 1, the next range to bin 2, and so on.</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">lowerLimit</span>
+<span class="elementDataType">number</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The lowest median transaction total in this defined price bin.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">upperLimit</span>
+<span class="elementDataType">number</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The highest median transaction total in this defined price bin.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">merchantMedianPriceBinNumber</span>
+<span class="elementDataType">integer</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>The <span class="symbolInProse">merchantMedianPriceBinNumber</span> indicates which of the four price bins defined for the category represents the range of median transaction amounts for this merchant. Using the <span class="symbolInProse">categoryPriceBins</span> values shown above, a <span class="symbolInProse">merchantMedianPriceBinNumber</span> of 2 would indicate that this merchant’s median transaction amount falls into the $10.00 to $19.99 range.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">openHours</span>
+<span class="elementDataType">[object]</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Returns an array of business hours, including day of week and open and closing times. For example,</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">dayOfWeek</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">startTime</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">endTime</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:30</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tuesday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Wednesday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Thursday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Friday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">23:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Saturday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">23:00</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:30</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p></p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">dayOfWeek</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Day of the week, Monday through Sunday.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">startTime</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Business opening time for the given day of the week, formatted as hh:mm in 24-hour format.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">endTime</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Business closing time for the given day of the week, formatted as hh:mm in 24-hour format.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">popularHours</span>
+<span class="elementDataType">[object]</span>
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Breaks down the merchant’s open hours in one-hour increments, and provides a measure of each hour’s popularity. The array includes an entry for each one-hour increment the merchant is open, for all open days. Higher popularity scores indicate the busier hours on a given day. An empty array will be returned if there isn’t enough data to model popularity.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 33.3335%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">dayOfWeek</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">startHour</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">endHour</span></th>
+<th class="tableblock halign-left valign-top"><span class="symbolInProse">popularity</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.17</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.67</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.50</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.27</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.17</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.17</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">19:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.67</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">19:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.17</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">21:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.50</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sunday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">21:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.33</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.33</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monday</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14:00</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.07</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">…​</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p></p>
+</div>
+</div>
+<div class="elementContainer">
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">dayOfWeek</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Day of the week, Monday through Sunday.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">startHour</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Start time for the selected <span class="symbolInProse">dayOfWeek</span>, formatted as hh:mm as 24-hour time.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">endHour</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>End time for the selected <span class="symbolInProse">dayOfWeek</span>, formatted in hh:mm as 24-hour time.
+</p>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">popularity</span>
+<span class="elementDataType">number</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Popularity score for the specific hour relative to the most popular hour in the day. Ranges from 0 to 1.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="element">
+<div class="elementSpec">
+<span class="elementName">mostRecentTransactionMonth</span>
+<span class="elementDataType">string</span>
+
+</div>
+<div class="elementDescription">
+<div class="paragraph">
+<p>Date of the most recent authorized transaction, formatted as YYYY-MM. This value can indicate whether or not a merchant is still open, or whether or not they still accept credit cards.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="nodeHolder"><code class="node"><pre>var https = require('https');
+var queryString = require('querystring');
+
+// Assemble the request message headers
+var requestHeaders = {
+  'Authorization': 'Bearer 84b2d1f04c524be32630921e989e1954c',
+  'Accept': 'application/json;v=1'
+}
+
+// URL encode the path parameter
+merchantId = encodeURIComponent(/* Unencoded merchantId value */)
+
+// Assemble the calling options for the request message
+var options = {
+  method: 'GET', 
+  hostname: 'api-sandbox.capitalone.com', 
+  port: 443, // https
+  path: '/merchant-insights/merchants/' + merchantId,
+  headers: requestHeaders
+}
+
+// Create the request and handle the response
+var refreshMerchantDetails = https.request(options, function(response) {
+
+  // Accumulate the response data
+  var responseData = "";
+  response.on('data', function(data) {
+    responseData += data;
+  });
+
+  // Process the response data
+  response.on('end', function() {
+    // Do something with responseData
+  });
+});
+
+// Finish sending the request
+refreshMerchantDetails.end();
+
+</pre></code></div>
+<div class="curlHolder"><code class="curl"><pre>NOTE: {merchantId} must be URL encoded.
+
+-- REQUEST --
+curl -i -k --tlsv1 -H "Authorization: Bearer 84b2d1f04c524be32630921e989e1954c" -H "Accept: application/json;v=1" -X GET "https://api-sandbox.capitalone.com/merchant-insights/merchants/{merchantId}"
+
+--RESPONSE--
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 547
+Date: Fri, 22 Sep 2017 12:37:07 GMT
+
+{"merchantId":"1011373188","merchantName":"Takeing Thai Cuisine","city":"Fair Oaks","stateCode":"CA","postalCode":"95628","categoryName":"Dining and Entertainment","merchantPriceBin":{"currencyCode":"string","categoryPriceBins":[{"binNumber":1,"lowerLimit":0.00,"upperLimit":9.99}],"merchantMedianPriceBinNumber":4},"openHours":[{"dayOfWeek":"Monday","startTime":"11:00","endTime":"22:30 -++ TDA edited ++-"}],"popularHours":[{"dayOfWeek":"Sunday","startHour":"18:00","endHour":"19:00","popularity":0.67}],"mostRecentTransactionMonth":"2017-08"}</pre></code></div>
+</div>
+</div>
