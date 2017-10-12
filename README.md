@@ -8,8 +8,8 @@
 
 - [Rewards](https://developer.capitalone.com/products/rewards/documentation/)
 
-- [Sign Up](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/signup/)
+- [Sign Up](https://capitalonedevexchangehackathon.github.io/Hackathon-API-Documentation/signup/)
 
-- [Sign In](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/signin/)
+- [Sign In](https://capitalonedevexchangehackathon.github.io/Hackathon-API-Documentation/signin/)
 
-- [Verify](https://capitalonedevexchangehackathon.github.io/Private-API-Documentation/verify/)
+- [Verify](https://capitalonedevexchangehackathon.github.io/Hackathon-API-Documentation/verify/)
