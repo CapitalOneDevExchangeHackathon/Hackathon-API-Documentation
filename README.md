@@ -1,4 +1,4 @@
-# Capital One Private API Documentation
+# Capital One Hackathon API Documentation
 
 ### Viewing the Documentation
 
