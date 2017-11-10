@@ -2,11 +2,7 @@
 
 ### Viewing the Documentation
 
-- [Credit Offers](https://developer.capitalone.com/products/credit-offers/documentation/)
-
-- [Bank Account Starter](https://developer.capitalone.com/products/bank-account-starter/documentation/)
-
-- [Rewards](https://developer.capitalone.com/products/rewards/documentation/)
+- [Vault Secure Storage](/vault/vault.pdf)
 
 - [Sign Up](https://capitalonedevexchangehackathon.github.io/Hackathon-API-Documentation/signup/)
 
